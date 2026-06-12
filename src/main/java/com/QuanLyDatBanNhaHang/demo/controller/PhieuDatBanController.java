@@ -1,7 +1,7 @@
 package com.QuanLyDatBanNhaHang.demo.controller;
 
 import com.QuanLyDatBanNhaHang.demo.dto.response.PhieuDatBanDTO;
-import com.QuanLyDatBanNhaHang.demo.service.PhieuDatBanService;
+import com.QuanLyDatBanNhaHang.demo.service.PhieuDatBanServiceInterface;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -29,7 +29,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class PhieuDatBanController {
 
-    private final PhieuDatBanService phieuDatBanService;
+    private final PhieuDatBanServiceInterface phieuDatBanService;
 
     /**
      * GET /api/v1/phieu-dat-ban
