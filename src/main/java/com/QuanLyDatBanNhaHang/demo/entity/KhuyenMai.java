@@ -1,0 +1,47 @@
+package com.QuanLyDatBanNhaHang.demo.entity;
+
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+import java.time.LocalDate;
+import java.util.List;
+
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+@Entity
+@Table(name = "KhuyenMai")
+public class KhuyenMai {
+
+    @Id
+    @Column(name = "maKM", length = 20)
+    private String maKM;
+
+    @Column(name = "tenKM", nullable = false, length = 100)
+    private String tenKM;
+
+    @Column(name = "giaTriGiam", nullable = false)
+    private Double giaTriGiam;
+
+    @Column(name = "ngayBatDau", nullable = false)
+    private LocalDate ngayBatDau;
+
+    @Column(name = "ngayKetThuc", nullable = false)
+    private LocalDate ngayKetThuc;
+
+    @Column(name = "dieuKienToiThieu")
+    private Double dieuKienToiThieu;
+
+    @Column(name = "trangThai", nullable = false, length = 50)
+    private String trangThai;
+
+    @OneToMany(mappedBy = "khuyenMai", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<HoaDon> hoaDons;
+}
+
