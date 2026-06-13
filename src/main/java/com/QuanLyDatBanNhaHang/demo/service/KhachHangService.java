@@ -1,19 +1,71 @@
 package com.QuanLyDatBanNhaHang.demo.service;
 
-import com.QuanLyDatBanNhaHang.demo.dto.request.KhachHangRequestDTO;
+import com.QuanLyDatBanNhaHang.demo.dto.request.KhachHangCreateRequestDTO;
+import com.QuanLyDatBanNhaHang.demo.dto.request.KhachHangUpdateRequestDTO;
 import com.QuanLyDatBanNhaHang.demo.dto.response.KhachHangResponseDTO;
+import com.QuanLyDatBanNhaHang.demo.entity.KhachHang;
+import com.QuanLyDatBanNhaHang.demo.repository.KhachHangRepository;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+
 import java.util.List;
-import java.util.Optional;
+import java.util.stream.Collectors;
 
-/**
- * Interface cho KhachHangService.
- */
-public interface KhachHangService {
-    List<KhachHangResponseDTO> getAll();
-    Optional<KhachHangResponseDTO> getById(String maKH);
-    KhachHangResponseDTO create(KhachHangRequestDTO dto);
-    Optional<KhachHangResponseDTO> update(String maKH, KhachHangRequestDTO dto);
-    void delete(String maKH);
-    List<KhachHangResponseDTO> getByLoaiThanhVien(String loaiThanhVien);
+@Service
+@RequiredArgsConstructor
+public class KhachHangService {
+
+    private final KhachHangRepository khachHangRepository;
+
+    public List<KhachHangResponseDTO> getAllKhachHang() {
+        return khachHangRepository.findAll().stream()
+                .map(this::convertToResponseDTO)
+                .collect(Collectors.toList());
+    }
+
+    public KhachHangResponseDTO getKhachHangById(String maKH) {
+        KhachHang khachHang = khachHangRepository.findById(maKH)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy Khách Hàng với mã: " + maKH));
+        return convertToResponseDTO(khachHang);
+    }
+
+    public KhachHangResponseDTO createKhachHang(KhachHangCreateRequestDTO requestDTO) {
+        KhachHang khachHang = KhachHang.builder()
+                .maKH(requestDTO.getMaKH())
+                .hoTen(requestDTO.getHoTen())
+                .sdt(requestDTO.getSdt())
+                .diemTichLuy(requestDTO.getDiemTichLuy())
+                .loaiThanhVien(requestDTO.getLoaiThanhVien())
+                .build();
+
+        KhachHang saved = khachHangRepository.save(khachHang);
+        return convertToResponseDTO(saved);
+    }
+
+    public KhachHangResponseDTO updateKhachHang(String maKH, KhachHangUpdateRequestDTO requestDTO) {
+        KhachHang khachHang = khachHangRepository.findById(maKH)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy Khách Hàng với mã: " + maKH));
+
+        khachHang.setHoTen(requestDTO.getHoTen());
+        khachHang.setSdt(requestDTO.getSdt());
+        khachHang.setDiemTichLuy(requestDTO.getDiemTichLuy());
+        khachHang.setLoaiThanhVien(requestDTO.getLoaiThanhVien());
+
+        KhachHang updated = khachHangRepository.save(khachHang);
+        return convertToResponseDTO(updated);
+    }
+
+    public void deleteKhachHang(String maKH) {
+        khachHangRepository.deleteById(maKH);
+    }
+
+    private KhachHangResponseDTO convertToResponseDTO(KhachHang khachHang) {
+        return KhachHangResponseDTO.builder()
+                .maKH(khachHang.getMaKH())
+                .hoTen(khachHang.getHoTen())
+                .sdt(khachHang.getSdt())
+                .diemTichLuy(khachHang.getDiemTichLuy())
+                .loaiThanhVien(khachHang.getLoaiThanhVien())
+                .build();
+    }
 }
-

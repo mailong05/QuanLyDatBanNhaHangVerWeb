@@ -16,14 +16,15 @@ import java.io.Serializable;
 @Builder
 @Entity
 @Table(name = "ChiTietPhieuDatBan")
-@IdClass(ChiTietPhieuDatBanId.class)
 public class ChiTietPhieuDatBan {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
     @Column(name = "maPhieuDat", length = 20)
     private String maPhieuDat;
 
-    @Id
     @Column(name = "maBan", length = 20)
     private String maBan;
 

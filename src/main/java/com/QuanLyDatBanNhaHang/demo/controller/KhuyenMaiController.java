@@ -1,8 +1,10 @@
 package com.QuanLyDatBanNhaHang.demo.controller;
 
-import com.QuanLyDatBanNhaHang.demo.dto.request.KhuyenMaiRequestDTO;
+import com.QuanLyDatBanNhaHang.demo.dto.request.KhuyenMaiCreateRequestDTO;
+import com.QuanLyDatBanNhaHang.demo.dto.request.KhuyenMaiUpdateRequestDTO;
 import com.QuanLyDatBanNhaHang.demo.dto.response.KhuyenMaiResponseDTO;
 import com.QuanLyDatBanNhaHang.demo.service.KhuyenMaiService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,43 +20,28 @@ public class KhuyenMaiController {
     private final KhuyenMaiService khuyenMaiService;
 
     @GetMapping
-    public ResponseEntity<List<KhuyenMaiResponseDTO>> getAll() {
-        List<KhuyenMaiResponseDTO> result = khuyenMaiService.getAll();
-        return ResponseEntity.ok(result);
+    public ResponseEntity<List<KhuyenMaiResponseDTO>> getAllKhuyenMai() {
+        return ResponseEntity.ok(khuyenMaiService.getAllKhuyenMai());
     }
 
-    @GetMapping("/{maKM}")
-    public ResponseEntity<KhuyenMaiResponseDTO> getById(@PathVariable String maKM) {
-        return khuyenMaiService.getById(maKM)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
-    }
-
-    @GetMapping("/trang-thai/{trangThai}")
-    public ResponseEntity<List<KhuyenMaiResponseDTO>> getByTrangThai(@PathVariable String trangThai) {
-        List<KhuyenMaiResponseDTO> result = khuyenMaiService.getByTrangThai(trangThai);
-        return ResponseEntity.ok(result);
+    @GetMapping("/{id}")
+    public ResponseEntity<KhuyenMaiResponseDTO> getKhuyenMaiById(@PathVariable String id) {
+        return ResponseEntity.ok(khuyenMaiService.getKhuyenMaiById(id));
     }
 
     @PostMapping
-    public ResponseEntity<KhuyenMaiResponseDTO> create(@RequestBody KhuyenMaiRequestDTO dto) {
-        KhuyenMaiResponseDTO result = khuyenMaiService.create(dto);
-        return ResponseEntity.status(HttpStatus.CREATED).body(result);
+    public ResponseEntity<KhuyenMaiResponseDTO> createKhuyenMai(@Valid @RequestBody KhuyenMaiCreateRequestDTO requestDTO) {
+        return new ResponseEntity<>(khuyenMaiService.createKhuyenMai(requestDTO), HttpStatus.CREATED);
     }
 
-    @PutMapping("/{maKM}")
-    public ResponseEntity<KhuyenMaiResponseDTO> update(
-            @PathVariable String maKM,
-            @RequestBody KhuyenMaiRequestDTO dto) {
-        return khuyenMaiService.update(maKM, dto)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+    @PutMapping("/{id}")
+    public ResponseEntity<KhuyenMaiResponseDTO> updateKhuyenMai(@PathVariable String id, @Valid @RequestBody KhuyenMaiUpdateRequestDTO requestDTO) {
+        return ResponseEntity.ok(khuyenMaiService.updateKhuyenMai(id, requestDTO));
     }
 
-    @DeleteMapping("/{maKM}")
-    public ResponseEntity<Void> delete(@PathVariable String maKM) {
-        khuyenMaiService.delete(maKM);
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteKhuyenMai(@PathVariable String id) {
+        khuyenMaiService.deleteKhuyenMai(id);
         return ResponseEntity.noContent().build();
     }
 }
-

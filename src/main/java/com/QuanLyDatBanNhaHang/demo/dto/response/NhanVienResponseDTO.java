@@ -21,5 +21,5 @@ public class NhanVienResponseDTO {
     private LocalDate ngayVaoLam;
     private Double luongCoBan;
     private String trangThai;
+    // Không trả về đối tượng TaiKhoan hay thông tin mật khẩu vì lý do bảo mật
 }
-

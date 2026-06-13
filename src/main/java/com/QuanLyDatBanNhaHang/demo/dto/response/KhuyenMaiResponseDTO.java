@@ -22,4 +22,3 @@ public class KhuyenMaiResponseDTO {
     private Double dieuKienToiThieu;
     private String trangThai;
 }
-

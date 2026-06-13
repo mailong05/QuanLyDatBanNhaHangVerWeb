@@ -1,17 +1,19 @@
 package com.QuanLyDatBanNhaHang.demo.dto.request;
 
-
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Getter
 @Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class KhuVucUpdateRequestDTO {
-    // Không có maKhuVuc ở đây nữa!
-
-    @NotBlank(message = "Tên khu vực bắt buộc phải nhập")
-    @Size(min = 5, message = "Tên khu vực phải dài ít nhất 5 ký tự")
+    
+    @NotBlank(message = "Tên khu vực không được để trống")
     private String tenKhuVuc;
 }

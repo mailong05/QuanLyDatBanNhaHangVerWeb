@@ -1,6 +1,6 @@
 package com.QuanLyDatBanNhaHang.demo.controller;
 
-import com.QuanLyDatBanNhaHang.demo.dto.request.KhuVucRequestDTO;
+import com.QuanLyDatBanNhaHang.demo.dto.request.KhuVucCreateRequestDTO;
 import com.QuanLyDatBanNhaHang.demo.dto.request.KhuVucUpdateRequestDTO;
 import com.QuanLyDatBanNhaHang.demo.dto.response.KhuVucResponseDTO;
 import com.QuanLyDatBanNhaHang.demo.service.KhuVucService;
@@ -20,37 +20,28 @@ public class KhuVucController {
     private final KhuVucService khuVucService;
 
     @GetMapping
-    public ResponseEntity<List<KhuVucResponseDTO>> getAll() {
-        List<KhuVucResponseDTO> result = khuVucService.getAll();
-        return ResponseEntity.ok(result);
+    public ResponseEntity<List<KhuVucResponseDTO>> getAllKhuVuc() {
+        return ResponseEntity.ok(khuVucService.getAllKhuVuc());
     }
 
-    @GetMapping("/{maKhuVuc}")
-    public ResponseEntity<KhuVucResponseDTO> getById(@PathVariable String maKhuVuc) {
-        return khuVucService.getById(maKhuVuc)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+    @GetMapping("/{id}")
+    public ResponseEntity<KhuVucResponseDTO> getKhuVucById(@PathVariable String id) {
+        return ResponseEntity.ok(khuVucService.getKhuVucById(id));
     }
 
     @PostMapping
-    public ResponseEntity<KhuVucResponseDTO> create(@Valid @RequestBody KhuVucRequestDTO dto) {
-        KhuVucResponseDTO result = khuVucService.create(dto);
-        return ResponseEntity.status(HttpStatus.CREATED).body(result);
+    public ResponseEntity<KhuVucResponseDTO> createKhuVuc(@Valid @RequestBody KhuVucCreateRequestDTO requestDTO) {
+        return new ResponseEntity<>(khuVucService.createKhuVuc(requestDTO), HttpStatus.CREATED);
     }
 
-    @PutMapping("/{maKhuVuc}")
-    public ResponseEntity<KhuVucResponseDTO> update(
-            @PathVariable String maKhuVuc,
-          @Valid  @RequestBody KhuVucUpdateRequestDTO dto) {
-        return khuVucService.update(maKhuVuc, dto)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+    @PutMapping("/{id}")
+    public ResponseEntity<KhuVucResponseDTO> updateKhuVuc(@PathVariable String id, @Valid @RequestBody KhuVucUpdateRequestDTO requestDTO) {
+        return ResponseEntity.ok(khuVucService.updateKhuVuc(id, requestDTO));
     }
 
-    @DeleteMapping("/{maKhuVuc}")
-    public ResponseEntity<Void> delete(@PathVariable String maKhuVuc) {
-        khuVucService.delete(maKhuVuc);
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteKhuVuc(@PathVariable String id) {
+        khuVucService.deleteKhuVuc(id);
         return ResponseEntity.noContent().build();
     }
 }
-

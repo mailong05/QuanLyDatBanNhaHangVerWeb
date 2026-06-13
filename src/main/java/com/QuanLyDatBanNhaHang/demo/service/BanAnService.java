@@ -1,52 +1,82 @@
 package com.QuanLyDatBanNhaHang.demo.service;
 
-import com.QuanLyDatBanNhaHang.demo.dto.request.BanAnRequestDTO;
+import com.QuanLyDatBanNhaHang.demo.dto.request.BanAnCreateRequestDTO;
+import com.QuanLyDatBanNhaHang.demo.dto.request.BanAnUpdateRequestDTO;
 import com.QuanLyDatBanNhaHang.demo.dto.response.BanAnResponseDTO;
+import com.QuanLyDatBanNhaHang.demo.entity.BanAn;
+import com.QuanLyDatBanNhaHang.demo.entity.KhuVuc;
+import com.QuanLyDatBanNhaHang.demo.repository.BanAnRepository;
+import com.QuanLyDatBanNhaHang.demo.repository.KhuVucRepository;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
-/**
- * Service Interface cho BanAn.
- * Định nghĩa các contract CRUD operation.
- */
-public interface BanAnService {
+@Service
+@RequiredArgsConstructor
+public class BanAnService {
 
-    /**
-     * Lấy tất cả bàn ăn.
-     */
-    List<BanAnResponseDTO> getAll();
+    private final BanAnRepository banAnRepository;
+    private final KhuVucRepository khuVucRepository;
 
-    /**
-     * Lấy bàn ăn theo ID.
-     * @throws RuntimeException nếu không tìm thấy
-     */
-    BanAnResponseDTO getById(String maBan);
+    public List<BanAnResponseDTO> getAllBanAn() {
+        List<BanAn> banAns = banAnRepository.findAllWithRelations();
+        return banAns.stream()
+                .map(this::convertToResponseDTO)
+                .collect(Collectors.toList());
+    }
 
-    /**
-     * Tạo bàn ăn mới.
-     */
-    BanAnResponseDTO create(BanAnRequestDTO dto);
+    public BanAnResponseDTO getBanAnById(String maBan) {
+        BanAn banAn = banAnRepository.findById(maBan)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy Bàn Ăn với mã: " + maBan));
+        return convertToResponseDTO(banAn);
+    }
 
-    /**
-     * Cập nhật bàn ăn.
-     * @throws RuntimeException nếu không tìm thấy
-     */
-    BanAnResponseDTO update(String maBan, BanAnRequestDTO dto);
+    public BanAnResponseDTO createBanAn(BanAnCreateRequestDTO requestDTO) {
+        KhuVuc khuVuc = khuVucRepository.findById(requestDTO.getMaKhuVuc())
+                .orElseThrow(() -> new RuntimeException("Khu vực không tồn tại"));
 
-    /**
-     * Xóa bàn ăn.
-     * @throws RuntimeException nếu không tìm thấy
-     */
-    void delete(String maBan);
+        BanAn banAn = BanAn.builder()
+                .maBan(requestDTO.getMaBan())
+                .soGhe(requestDTO.getSoGhe())
+                .viTri(requestDTO.getViTri())
+                .trangThai(requestDTO.getTrangThai())
+                .khuVuc(khuVuc)
+                .build();
 
-    /**
-     * Lấy bàn ăn theo trạng thái.
-     */
-    List<BanAnResponseDTO> getByTrangThai(String trangThai);
+        BanAn saved = banAnRepository.save(banAn);
+        return convertToResponseDTO(saved);
+    }
 
-    /**
-     * Lấy bàn ăn của một khu vực.
-     */
-    List<BanAnResponseDTO> getByKhuVuc(String maKhuVuc);
+    public BanAnResponseDTO updateBanAn(String maBan, BanAnUpdateRequestDTO requestDTO) {
+        BanAn banAn = banAnRepository.findById(maBan)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy Bàn Ăn với mã: " + maBan));
+
+        KhuVuc khuVuc = khuVucRepository.findById(requestDTO.getMaKhuVuc())
+                .orElseThrow(() -> new RuntimeException("Khu vực không tồn tại"));
+
+        banAn.setSoGhe(requestDTO.getSoGhe());
+        banAn.setViTri(requestDTO.getViTri());
+        banAn.setTrangThai(requestDTO.getTrangThai());
+        banAn.setKhuVuc(khuVuc);
+
+        BanAn updated = banAnRepository.save(banAn);
+        return convertToResponseDTO(updated);
+    }
+
+    public void deleteBanAn(String maBan) {
+        banAnRepository.deleteById(maBan);
+    }
+
+    private BanAnResponseDTO convertToResponseDTO(BanAn banAn) {
+        return BanAnResponseDTO.builder()
+                .maBan(banAn.getMaBan())
+                .soGhe(banAn.getSoGhe())
+                .viTri(banAn.getViTri())
+                .trangThai(banAn.getTrangThai())
+                .maKhuVuc(banAn.getKhuVuc() != null ? banAn.getKhuVuc().getMaKhuVuc() : null)
+                .tenKhuVuc(banAn.getKhuVuc() != null ? banAn.getKhuVuc().getTenKhuVuc() : null)
+                .build();
+    }
 }
-

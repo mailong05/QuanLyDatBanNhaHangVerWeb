@@ -15,4 +15,3 @@ public class KhuVucResponseDTO {
     private String maKhuVuc;
     private String tenKhuVuc;
 }
-

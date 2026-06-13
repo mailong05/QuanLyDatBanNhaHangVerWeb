@@ -17,4 +17,3 @@ public class ThueResponseDTO {
     private Double thueSuat;
     private String trangThai;
 }
-

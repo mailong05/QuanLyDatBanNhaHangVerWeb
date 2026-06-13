@@ -1,0 +1,36 @@
+package com.QuanLyDatBanNhaHang.demo.dto.request;
+
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class MonAnCreateRequestDTO {
+    
+    @NotBlank(message = "Mã món không được để trống")
+    private String maMon;
+
+    @NotBlank(message = "Tên món không được để trống")
+    private String tenMon;
+
+    @NotNull(message = "Đơn giá không được để trống")
+    private Double donGia;
+
+    private String donViTinh;
+
+    @NotBlank(message = "Tên loại không được để trống")
+    private String tenLoai;
+
+    @NotBlank(message = "Trạng thái không được để trống")
+    private String trangThai;
+
+    private String urlHinhAnh;
+}

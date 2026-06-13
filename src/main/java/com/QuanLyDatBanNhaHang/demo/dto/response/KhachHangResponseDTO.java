@@ -6,10 +6,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-/**
- * Response DTO cho KhachHang.
- * Flat structure: chỉ lấy các field cơ bản, không chứa object phức tạp.
- */
 @Getter
 @Setter
 @NoArgsConstructor
@@ -22,4 +18,3 @@ public class KhachHangResponseDTO {
     private Integer diemTichLuy;
     private String loaiThanhVien;
 }
-

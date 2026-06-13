@@ -1,8 +1,10 @@
 package com.QuanLyDatBanNhaHang.demo.controller;
 
-import com.QuanLyDatBanNhaHang.demo.dto.request.CaLamViecRequestDTO;
+import com.QuanLyDatBanNhaHang.demo.dto.request.CaLamViecCreateRequestDTO;
+import com.QuanLyDatBanNhaHang.demo.dto.request.CaLamViecUpdateRequestDTO;
 import com.QuanLyDatBanNhaHang.demo.dto.response.CaLamViecResponseDTO;
 import com.QuanLyDatBanNhaHang.demo.service.CaLamViecService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,49 +20,28 @@ public class CaLamViecController {
     private final CaLamViecService caLamViecService;
 
     @GetMapping
-    public ResponseEntity<List<CaLamViecResponseDTO>> getAll() {
-        List<CaLamViecResponseDTO> result = caLamViecService.getAll();
-        return ResponseEntity.ok(result);
+    public ResponseEntity<List<CaLamViecResponseDTO>> getAllCaLamViec() {
+        return ResponseEntity.ok(caLamViecService.getAllCaLamViec());
     }
 
-    @GetMapping("/{maCa}")
-    public ResponseEntity<CaLamViecResponseDTO> getById(@PathVariable String maCa) {
-        return caLamViecService.getById(maCa)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
-    }
-
-    @GetMapping("/nhan-vien/{maNV}")
-    public ResponseEntity<List<CaLamViecResponseDTO>> getByNhanVien(@PathVariable String maNV) {
-        List<CaLamViecResponseDTO> result = caLamViecService.getByNhanVien(maNV);
-        return ResponseEntity.ok(result);
-    }
-
-    @GetMapping("/trang-thai/{trangThai}")
-    public ResponseEntity<List<CaLamViecResponseDTO>> getByTrangThai(@PathVariable String trangThai) {
-        List<CaLamViecResponseDTO> result = caLamViecService.getByTrangThai(trangThai);
-        return ResponseEntity.ok(result);
+    @GetMapping("/{id}")
+    public ResponseEntity<CaLamViecResponseDTO> getCaLamViecById(@PathVariable String id) {
+        return ResponseEntity.ok(caLamViecService.getCaLamViecById(id));
     }
 
     @PostMapping
-    public ResponseEntity<CaLamViecResponseDTO> create(@RequestBody CaLamViecRequestDTO dto) {
-        CaLamViecResponseDTO result = caLamViecService.create(dto);
-        return ResponseEntity.status(HttpStatus.CREATED).body(result);
+    public ResponseEntity<CaLamViecResponseDTO> createCaLamViec(@Valid @RequestBody CaLamViecCreateRequestDTO requestDTO) {
+        return new ResponseEntity<>(caLamViecService.createCaLamViec(requestDTO), HttpStatus.CREATED);
     }
 
-    @PutMapping("/{maCa}")
-    public ResponseEntity<CaLamViecResponseDTO> update(
-            @PathVariable String maCa,
-            @RequestBody CaLamViecRequestDTO dto) {
-        return caLamViecService.update(maCa, dto)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+    @PutMapping("/{id}")
+    public ResponseEntity<CaLamViecResponseDTO> updateCaLamViec(@PathVariable String id, @Valid @RequestBody CaLamViecUpdateRequestDTO requestDTO) {
+        return ResponseEntity.ok(caLamViecService.updateCaLamViec(id, requestDTO));
     }
 
-    @DeleteMapping("/{maCa}")
-    public ResponseEntity<Void> delete(@PathVariable String maCa) {
-        caLamViecService.delete(maCa);
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteCaLamViec(@PathVariable String id) {
+        caLamViecService.deleteCaLamViec(id);
         return ResponseEntity.noContent().build();
     }
 }
-

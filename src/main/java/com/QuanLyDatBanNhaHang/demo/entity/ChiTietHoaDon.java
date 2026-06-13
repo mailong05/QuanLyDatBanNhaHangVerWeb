@@ -14,14 +14,15 @@ import lombok.Setter;
 @Builder
 @Entity
 @Table(name = "ChiTietHoaDon")
-@IdClass(ChiTietHoaDonId.class)
 public class ChiTietHoaDon {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
     @Column(name = "maHD", length = 20)
     private String maHD;
 
-    @Id
     @Column(name = "maMon", length = 20)
     private String maMon;
 

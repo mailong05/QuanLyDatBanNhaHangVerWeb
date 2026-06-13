@@ -15,13 +15,14 @@ import java.time.LocalDateTime;
 @Builder
 public class CaLamViecResponseDTO {
     private String maCa;
-    private String maNV;
-    private String hoTenNV;
     private LocalDateTime thoiGianVaoCa;
     private LocalDateTime thoiGianKetCa;
     private Double tienDauCa;
     private Double tienKetCa;
     private String trangThai;
     private String ghiChu;
+    
+    // Flatten fields
+    private String maNV;
+    private String hoTenNV;
 }
-

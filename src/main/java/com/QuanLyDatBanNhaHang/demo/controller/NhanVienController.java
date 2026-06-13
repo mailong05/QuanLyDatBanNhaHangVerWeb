@@ -1,8 +1,10 @@
 package com.QuanLyDatBanNhaHang.demo.controller;
 
-import com.QuanLyDatBanNhaHang.demo.dto.request.NhanVienRequestDTO;
+import com.QuanLyDatBanNhaHang.demo.dto.request.NhanVienCreateRequestDTO;
+import com.QuanLyDatBanNhaHang.demo.dto.request.NhanVienUpdateRequestDTO;
 import com.QuanLyDatBanNhaHang.demo.dto.response.NhanVienResponseDTO;
 import com.QuanLyDatBanNhaHang.demo.service.NhanVienService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,49 +20,28 @@ public class NhanVienController {
     private final NhanVienService nhanVienService;
 
     @GetMapping
-    public ResponseEntity<List<NhanVienResponseDTO>> getAll() {
-        List<NhanVienResponseDTO> result = nhanVienService.getAll();
-        return ResponseEntity.ok(result);
+    public ResponseEntity<List<NhanVienResponseDTO>> getAllNhanVien() {
+        return ResponseEntity.ok(nhanVienService.getAllNhanVien());
     }
 
-    @GetMapping("/{maNV}")
-    public ResponseEntity<NhanVienResponseDTO> getById(@PathVariable String maNV) {
-        return nhanVienService.getById(maNV)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
-    }
-
-    @GetMapping("/chuc-vu/{chucVu}")
-    public ResponseEntity<List<NhanVienResponseDTO>> getByChucVu(@PathVariable String chucVu) {
-        List<NhanVienResponseDTO> result = nhanVienService.getByChucVu(chucVu);
-        return ResponseEntity.ok(result);
-    }
-
-    @GetMapping("/trang-thai/{trangThai}")
-    public ResponseEntity<List<NhanVienResponseDTO>> getByTrangThai(@PathVariable String trangThai) {
-        List<NhanVienResponseDTO> result = nhanVienService.getByTrangThai(trangThai);
-        return ResponseEntity.ok(result);
+    @GetMapping("/{id}")
+    public ResponseEntity<NhanVienResponseDTO> getNhanVienById(@PathVariable String id) {
+        return ResponseEntity.ok(nhanVienService.getNhanVienById(id));
     }
 
     @PostMapping
-    public ResponseEntity<NhanVienResponseDTO> create(@RequestBody NhanVienRequestDTO dto) {
-        NhanVienResponseDTO result = nhanVienService.create(dto);
-        return ResponseEntity.status(HttpStatus.CREATED).body(result);
+    public ResponseEntity<NhanVienResponseDTO> createNhanVien(@Valid @RequestBody NhanVienCreateRequestDTO requestDTO) {
+        return new ResponseEntity<>(nhanVienService.createNhanVien(requestDTO), HttpStatus.CREATED);
     }
 
-    @PutMapping("/{maNV}")
-    public ResponseEntity<NhanVienResponseDTO> update(
-            @PathVariable String maNV,
-            @RequestBody NhanVienRequestDTO dto) {
-        return nhanVienService.update(maNV, dto)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+    @PutMapping("/{id}")
+    public ResponseEntity<NhanVienResponseDTO> updateNhanVien(@PathVariable String id, @Valid @RequestBody NhanVienUpdateRequestDTO requestDTO) {
+        return ResponseEntity.ok(nhanVienService.updateNhanVien(id, requestDTO));
     }
 
-    @DeleteMapping("/{maNV}")
-    public ResponseEntity<Void> delete(@PathVariable String maNV) {
-        nhanVienService.delete(maNV);
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteNhanVien(@PathVariable String id) {
+        nhanVienService.deleteNhanVien(id);
         return ResponseEntity.noContent().build();
     }
 }
-

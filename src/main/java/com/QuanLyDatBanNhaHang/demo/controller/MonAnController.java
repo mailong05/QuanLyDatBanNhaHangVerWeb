@@ -1,8 +1,10 @@
 package com.QuanLyDatBanNhaHang.demo.controller;
 
-import com.QuanLyDatBanNhaHang.demo.dto.request.MonAnRequestDTO;
+import com.QuanLyDatBanNhaHang.demo.dto.request.MonAnCreateRequestDTO;
+import com.QuanLyDatBanNhaHang.demo.dto.request.MonAnUpdateRequestDTO;
 import com.QuanLyDatBanNhaHang.demo.dto.response.MonAnResponseDTO;
 import com.QuanLyDatBanNhaHang.demo.service.MonAnService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,49 +20,28 @@ public class MonAnController {
     private final MonAnService monAnService;
 
     @GetMapping
-    public ResponseEntity<List<MonAnResponseDTO>> getAll() {
-        List<MonAnResponseDTO> result = monAnService.getAll();
-        return ResponseEntity.ok(result);
+    public ResponseEntity<List<MonAnResponseDTO>> getAllMonAn() {
+        return ResponseEntity.ok(monAnService.getAllMonAn());
     }
 
-    @GetMapping("/{maMon}")
-    public ResponseEntity<MonAnResponseDTO> getById(@PathVariable String maMon) {
-        return monAnService.getById(maMon)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
-    }
-
-    @GetMapping("/loai/{tenLoai}")
-    public ResponseEntity<List<MonAnResponseDTO>> getByTenLoai(@PathVariable String tenLoai) {
-        List<MonAnResponseDTO> result = monAnService.getByTenLoai(tenLoai);
-        return ResponseEntity.ok(result);
-    }
-
-    @GetMapping("/trang-thai/{trangThai}")
-    public ResponseEntity<List<MonAnResponseDTO>> getByTrangThai(@PathVariable String trangThai) {
-        List<MonAnResponseDTO> result = monAnService.getByTrangThai(trangThai);
-        return ResponseEntity.ok(result);
+    @GetMapping("/{id}")
+    public ResponseEntity<MonAnResponseDTO> getMonAnById(@PathVariable String id) {
+        return ResponseEntity.ok(monAnService.getMonAnById(id));
     }
 
     @PostMapping
-    public ResponseEntity<MonAnResponseDTO> create(@RequestBody MonAnRequestDTO dto) {
-        MonAnResponseDTO result = monAnService.create(dto);
-        return ResponseEntity.status(HttpStatus.CREATED).body(result);
+    public ResponseEntity<MonAnResponseDTO> createMonAn(@Valid @RequestBody MonAnCreateRequestDTO requestDTO) {
+        return new ResponseEntity<>(monAnService.createMonAn(requestDTO), HttpStatus.CREATED);
     }
 
-    @PutMapping("/{maMon}")
-    public ResponseEntity<MonAnResponseDTO> update(
-            @PathVariable String maMon,
-            @RequestBody MonAnRequestDTO dto) {
-        return monAnService.update(maMon, dto)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+    @PutMapping("/{id}")
+    public ResponseEntity<MonAnResponseDTO> updateMonAn(@PathVariable String id, @Valid @RequestBody MonAnUpdateRequestDTO requestDTO) {
+        return ResponseEntity.ok(monAnService.updateMonAn(id, requestDTO));
     }
 
-    @DeleteMapping("/{maMon}")
-    public ResponseEntity<Void> delete(@PathVariable String maMon) {
-        monAnService.delete(maMon);
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteMonAn(@PathVariable String id) {
+        monAnService.deleteMonAn(id);
         return ResponseEntity.noContent().build();
     }
 }
-
