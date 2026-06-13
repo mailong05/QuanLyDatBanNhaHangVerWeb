@@ -1,6 +1,7 @@
 package com.QuanLyDatBanNhaHang.demo.service.impl;
 
 import com.QuanLyDatBanNhaHang.demo.dto.request.KhuVucRequestDTO;
+import com.QuanLyDatBanNhaHang.demo.dto.request.KhuVucUpdateRequestDTO;
 import com.QuanLyDatBanNhaHang.demo.dto.response.KhuVucResponseDTO;
 import com.QuanLyDatBanNhaHang.demo.entity.KhuVuc;
 import com.QuanLyDatBanNhaHang.demo.repository.KhuVucRepository;
@@ -46,7 +47,7 @@ public class KhuVucServiceImpl implements KhuVucService {
 
     @Override
     @Transactional
-    public Optional<KhuVucResponseDTO> update(String maKhuVuc, KhuVucRequestDTO dto) {
+    public Optional<KhuVucResponseDTO> update(String maKhuVuc, KhuVucUpdateRequestDTO dto) {
         return khuVucRepository.findById(maKhuVuc).map(khuVuc -> {
             khuVuc.setTenKhuVuc(dto.getTenKhuVuc());
             KhuVuc updated = khuVucRepository.save(khuVuc);

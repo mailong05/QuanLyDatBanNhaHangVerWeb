@@ -1,8 +1,10 @@
 package com.QuanLyDatBanNhaHang.demo.controller;
 
 import com.QuanLyDatBanNhaHang.demo.dto.request.KhuVucRequestDTO;
+import com.QuanLyDatBanNhaHang.demo.dto.request.KhuVucUpdateRequestDTO;
 import com.QuanLyDatBanNhaHang.demo.dto.response.KhuVucResponseDTO;
 import com.QuanLyDatBanNhaHang.demo.service.KhuVucService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -31,7 +33,7 @@ public class KhuVucController {
     }
 
     @PostMapping
-    public ResponseEntity<KhuVucResponseDTO> create(@RequestBody KhuVucRequestDTO dto) {
+    public ResponseEntity<KhuVucResponseDTO> create(@Valid @RequestBody KhuVucRequestDTO dto) {
         KhuVucResponseDTO result = khuVucService.create(dto);
         return ResponseEntity.status(HttpStatus.CREATED).body(result);
     }
@@ -39,7 +41,7 @@ public class KhuVucController {
     @PutMapping("/{maKhuVuc}")
     public ResponseEntity<KhuVucResponseDTO> update(
             @PathVariable String maKhuVuc,
-            @RequestBody KhuVucRequestDTO dto) {
+          @Valid  @RequestBody KhuVucUpdateRequestDTO dto) {
         return khuVucService.update(maKhuVuc, dto)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
