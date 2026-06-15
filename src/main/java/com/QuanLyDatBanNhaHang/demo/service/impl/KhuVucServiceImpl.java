@@ -36,7 +36,7 @@ public class KhuVucServiceImpl implements KhuVucService {
 
         
         KhuVuc kv = KhuVuc.builder()
-                .maKhuVuc(generateNextMaKV())
+                .maKhuVuc(generateNextMaKhuVuc())
                 .tenKhuVuc(requestDTO.getTenKhuVuc())
                 .build();
                 
@@ -67,19 +67,6 @@ public class KhuVucServiceImpl implements KhuVucService {
                 .build();
     }
 
-    private String generateNextMaKV() {
-        String maxMa = khuVucRepository.findMaxMaKhuVuc();
-        if (maxMa == null || maxMa.isEmpty()) {
-            return String.format("KV%04d", 1);
-        }
-        try {
-            String numberPart = maxMa.substring(2);
-            int currentNum = Integer.parseInt(numberPart);
-            return String.format("KV%04d", currentNum + 1);
-        } catch (Exception e) {
-            return String.format("KV%04d", 1);
-        }
-    }
 
     private String generateNextMaKhuVuc() {
         String maxMa = khuVucRepository.findMaxMaKhuVuc();

@@ -1,5 +1,5 @@
 package com.QuanLyDatBanNhaHang.demo.enums;
 
 public enum TrangThaiBanAn {
-    AVAILABLE, OCCUPIED, RESERVED
+    TRONG, DA_DAT, DAT_TRUOC
 }
