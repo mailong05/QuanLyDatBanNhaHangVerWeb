@@ -1,6 +1,7 @@
 package com.QuanLyDatBanNhaHang.demo.entity;
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.Nationalized;
 import com.QuanLyDatBanNhaHang.demo.enums.*;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -28,15 +29,18 @@ public class MonAn extends BaseEntity {
     @Column(name = "maMon", length = 20, unique = true, nullable = false, updatable = false)
     private String maMon;
 
+    @Nationalized
     @Column(name = "tenMon", nullable = false, length = 100)
     private String tenMon;
 
     @Column(name = "donGia", nullable = false)
     private Double donGia;
 
+    @Nationalized
     @Column(name = "donViTinh", length = 50)
     private String donViTinh;
 
+    @Nationalized
     @Column(name = "tenLoai", nullable = false, length = 50)
     private String tenLoai;
 

@@ -1,7 +1,6 @@
 package com.QuanLyDatBanNhaHang.demo.dto.response;
 
-import com.QuanLyDatBanNhaHang.demo.enums.*;
-
+import com.QuanLyDatBanNhaHang.demo.enums.TrangThaiBanAn;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -14,12 +13,11 @@ import lombok.Setter;
 @AllArgsConstructor
 @Builder
 public class BanAnResponseDTO {
+    private Long id;
     private String maBan;
     private Integer soGhe;
     private String viTri;
     private TrangThaiBanAn trangThai;
-    
-    // Flatten fields
     private String maKhuVuc;
     private String tenKhuVuc;
 }

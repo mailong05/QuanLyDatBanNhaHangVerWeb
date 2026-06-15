@@ -6,11 +6,11 @@ import com.QuanLyDatBanNhaHang.demo.dto.response.KhuVucResponseDTO;
 import com.QuanLyDatBanNhaHang.demo.service.KhuVucService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/khu-vuc")
@@ -20,13 +20,13 @@ public class KhuVucController {
     private final KhuVucService khuVucService;
 
     @GetMapping
-    public ResponseEntity<List<KhuVucResponseDTO>> getAllKhuVuc() {
-        return ResponseEntity.ok(khuVucService.getAllKhuVuc());
+    public ResponseEntity<Page<KhuVucResponseDTO>> getAllKhuVuc(Pageable pageable) {
+        return ResponseEntity.ok(khuVucService.getAllKhuVuc(pageable));
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<KhuVucResponseDTO> getKhuVucById(@PathVariable String id) {
-        return ResponseEntity.ok(khuVucService.getKhuVucById(id));
+    @GetMapping("/{maKhuVuc}")
+    public ResponseEntity<KhuVucResponseDTO> getKhuVucById(@PathVariable String maKhuVuc) {
+        return ResponseEntity.ok(khuVucService.getKhuVucByMa(maKhuVuc));
     }
 
     @PostMapping
@@ -34,14 +34,14 @@ public class KhuVucController {
         return new ResponseEntity<>(khuVucService.createKhuVuc(requestDTO), HttpStatus.CREATED);
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<KhuVucResponseDTO> updateKhuVuc(@PathVariable String id, @Valid @RequestBody KhuVucUpdateRequestDTO requestDTO) {
-        return ResponseEntity.ok(khuVucService.updateKhuVuc(id, requestDTO));
+    @PutMapping("/{maKhuVuc}")
+    public ResponseEntity<KhuVucResponseDTO> updateKhuVuc(@PathVariable String maKhuVuc, @Valid @RequestBody KhuVucUpdateRequestDTO requestDTO) {
+        return ResponseEntity.ok(khuVucService.updateKhuVuc(maKhuVuc, requestDTO));
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteKhuVuc(@PathVariable String id) {
-        khuVucService.deleteKhuVuc(id);
+    @DeleteMapping("/{maKhuVuc}")
+    public ResponseEntity<Void> deleteKhuVuc(@PathVariable String maKhuVuc) {
+        khuVucService.deleteKhuVuc(maKhuVuc);
         return ResponseEntity.noContent().build();
     }
 }

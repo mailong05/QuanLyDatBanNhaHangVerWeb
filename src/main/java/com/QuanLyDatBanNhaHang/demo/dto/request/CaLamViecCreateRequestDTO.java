@@ -1,17 +1,15 @@
 package com.QuanLyDatBanNhaHang.demo.dto.request;
 
-import com.QuanLyDatBanNhaHang.demo.enums.*;
-import jakarta.validation.constraints.Pattern;
-
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.time.LocalDateTime;
+import java.time.LocalTime;
 
 @Getter
 @Setter
@@ -24,22 +22,12 @@ public class CaLamViecCreateRequestDTO {
     @Pattern(regexp = "^[a-zA-Z0-9_]+$", message = "Mã không hợp lệ")
     private String maCa;
 
-    @NotNull(message = "Thời gian vào ca không được để trống")
-    private LocalDateTime thoiGianVaoCa;
+    @NotBlank(message = "Tên ca không được để trống")
+    private String tenCa;
 
-    private LocalDateTime thoiGianKetCa;
+    @NotNull(message = "Giờ bắt đầu không được để trống")
+    private LocalTime gioBatDau;
 
-    @NotNull(message = "Tiền đầu ca không được để trống")
-    private Double tienDauCa;
-
-    private Double tienKetCa;
-
-    @NotNull(message = "Trạng thái không được để trống")
-    private TrangThaiCaLamViec trangThai;
-
-    private String ghiChu;
-
-    @NotBlank(message = "Mã nhân viên không được để trống")
-    @Pattern(regexp = "^[a-zA-Z0-9_]+$", message = "Mã không hợp lệ")
-    private String maNV;
+    @NotNull(message = "Giờ kết thúc không được để trống")
+    private LocalTime gioKetThuc;
 }

@@ -1,8 +1,6 @@
 package com.QuanLyDatBanNhaHang.demo.dto.request;
 
-import com.QuanLyDatBanNhaHang.demo.enums.*;
-import jakarta.validation.constraints.Pattern;
-
+import com.QuanLyDatBanNhaHang.demo.enums.TrangThaiKhuyenMai;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -19,7 +17,6 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @Builder
 public class KhuyenMaiUpdateRequestDTO {
-    
     @NotBlank(message = "Tên khuyến mãi không được để trống")
     private String tenKM;
 

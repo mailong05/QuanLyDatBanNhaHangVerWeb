@@ -1,6 +1,7 @@
 package com.QuanLyDatBanNhaHang.demo.entity;
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.Nationalized;
 import com.QuanLyDatBanNhaHang.demo.enums.*;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -28,27 +29,20 @@ public class CaLamViec extends BaseEntity {
     @Column(name = "maCa", length = 20, unique = true, nullable = false, updatable = false)
     private String maCa;
 
-    @Column(name = "thoiGianVaoCa", nullable = false)
-    private LocalDateTime thoiGianVaoCa;
+    @Nationalized
+    @Column(name = "tenCa", nullable = false, length = 100)
+    private String tenCa;
 
-    @Column(name = "thoiGianKetCa")
-    private LocalDateTime thoiGianKetCa;
+    @Column(name = "gioBatDau", nullable = false)
+    private java.time.LocalTime gioBatDau;
 
-    @Column(name = "tienDauCa", nullable = false)
-    private Double tienDauCa;
+    @Column(name = "gioKetThuc", nullable = false)
+    private java.time.LocalTime gioKetThuc;
 
-    @Column(name = "tienKetCa")
-    private Double tienKetCa;
+    @OneToMany(mappedBy = "caLamViec", cascade = CascadeType.ALL, orphanRemoval = true)
+    private java.util.List<PhanCong> phanCongs;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "trangThai", nullable = false, length = 50)
-    private TrangThaiCaLamViec trangThai;
-
-    @Column(name = "ghiChu", length = 255)
-    private String ghiChu;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "maNV", nullable = false)
-    private NhanVien nhanVien;
+    @OneToMany(mappedBy = "caLamViec", cascade = CascadeType.ALL, orphanRemoval = true)
+    private java.util.List<GiaoCa> giaoCas;
 }
 

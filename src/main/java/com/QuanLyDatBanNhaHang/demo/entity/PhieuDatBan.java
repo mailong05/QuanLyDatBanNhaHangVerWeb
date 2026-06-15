@@ -1,6 +1,7 @@
 package com.QuanLyDatBanNhaHang.demo.entity;
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.Nationalized;
 import com.QuanLyDatBanNhaHang.demo.enums.*;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -38,6 +39,7 @@ public class PhieuDatBan extends BaseEntity {
     @Column(name = "soLuongNguoi")
     private Integer soLuongNguoi;
 
+    @Nationalized
     @Column(name = "ghiChu", length = 255)
     private String ghiChu;
 
@@ -54,7 +56,7 @@ public class PhieuDatBan extends BaseEntity {
     private KhachHang khachHang;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "maNV", nullable = false)
+    @JoinColumn(name = "maNV")
     private NhanVien nhanVien;
 
     @OneToMany(mappedBy = "phieuDatBan", cascade = CascadeType.ALL, orphanRemoval = true)

@@ -6,11 +6,11 @@ import com.QuanLyDatBanNhaHang.demo.dto.response.BanAnResponseDTO;
 import com.QuanLyDatBanNhaHang.demo.service.BanAnService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/ban-an")
@@ -20,13 +20,13 @@ public class BanAnController {
     private final BanAnService banAnService;
 
     @GetMapping
-    public ResponseEntity<List<BanAnResponseDTO>> getAllBanAn() {
-        return ResponseEntity.ok(banAnService.getAllBanAn());
+    public ResponseEntity<Page<BanAnResponseDTO>> getAllBanAn(Pageable pageable) {
+        return ResponseEntity.ok(banAnService.getAllBanAn(pageable));
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<BanAnResponseDTO> getBanAnById(@PathVariable String id) {
-        return ResponseEntity.ok(banAnService.getBanAnById(id));
+    @GetMapping("/{maBan}")
+    public ResponseEntity<BanAnResponseDTO> getBanAnById(@PathVariable String maBan) {
+        return ResponseEntity.ok(banAnService.getBanAnByMa(maBan));
     }
 
     @PostMapping
@@ -34,14 +34,14 @@ public class BanAnController {
         return new ResponseEntity<>(banAnService.createBanAn(requestDTO), HttpStatus.CREATED);
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<BanAnResponseDTO> updateBanAn(@PathVariable String id, @Valid @RequestBody BanAnUpdateRequestDTO requestDTO) {
-        return ResponseEntity.ok(banAnService.updateBanAn(id, requestDTO));
+    @PutMapping("/{maBan}")
+    public ResponseEntity<BanAnResponseDTO> updateBanAn(@PathVariable String maBan, @Valid @RequestBody BanAnUpdateRequestDTO requestDTO) {
+        return ResponseEntity.ok(banAnService.updateBanAn(maBan, requestDTO));
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteBanAn(@PathVariable String id) {
-        banAnService.deleteBanAn(id);
+    @DeleteMapping("/{maBan}")
+    public ResponseEntity<Void> deleteBanAn(@PathVariable String maBan) {
+        banAnService.deleteBanAn(maBan);
         return ResponseEntity.noContent().build();
     }
 }

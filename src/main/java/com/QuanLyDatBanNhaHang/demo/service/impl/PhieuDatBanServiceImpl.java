@@ -1,22 +1,32 @@
 package com.QuanLyDatBanNhaHang.demo.service.impl;
 
-import com.QuanLyDatBanNhaHang.demo.service.PhieuDatBanService;
-
+import com.QuanLyDatBanNhaHang.demo.dto.request.ChiTietPhieuDatBanCreateRequestDTO;
 import com.QuanLyDatBanNhaHang.demo.dto.request.PhieuDatBanCreateRequestDTO;
 import com.QuanLyDatBanNhaHang.demo.dto.request.PhieuDatBanUpdateRequestDTO;
+import com.QuanLyDatBanNhaHang.demo.dto.response.ChiTietPhieuDatBanResponseDTO;
 import com.QuanLyDatBanNhaHang.demo.dto.response.PhieuDatBanResponseDTO;
+import com.QuanLyDatBanNhaHang.demo.entity.BanAn;
+import com.QuanLyDatBanNhaHang.demo.entity.ChiTietPhieuDatBan;
 import com.QuanLyDatBanNhaHang.demo.entity.KhachHang;
 import com.QuanLyDatBanNhaHang.demo.entity.NhanVien;
 import com.QuanLyDatBanNhaHang.demo.entity.PhieuDatBan;
+import com.QuanLyDatBanNhaHang.demo.exception.DuplicateResourceException;
+import com.QuanLyDatBanNhaHang.demo.exception.ResourceNotFoundException;
+import com.QuanLyDatBanNhaHang.demo.repository.BanAnRepository;
 import com.QuanLyDatBanNhaHang.demo.repository.KhachHangRepository;
 import com.QuanLyDatBanNhaHang.demo.repository.NhanVienRepository;
 import com.QuanLyDatBanNhaHang.demo.repository.PhieuDatBanRepository;
+import com.QuanLyDatBanNhaHang.demo.service.PhieuDatBanService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
-import com.QuanLyDatBanNhaHang.demo.exception.ResourceNotFoundException;
 
 @Service
 @RequiredArgsConstructor
@@ -25,89 +35,130 @@ public class PhieuDatBanServiceImpl implements PhieuDatBanService {
     private final PhieuDatBanRepository phieuDatBanRepository;
     private final KhachHangRepository khachHangRepository;
     private final NhanVienRepository nhanVienRepository;
+    private final BanAnRepository banAnRepository;
 
-    public List<PhieuDatBanResponseDTO> getAllPhieuDatBan() {
-        return phieuDatBanRepository.findAllWithRelations().stream()
-                .map(this::convertToResponseDTO)
-                .collect(Collectors.toList());
+    @Override
+    public Page<PhieuDatBanResponseDTO> getAllPhieuDatBan(Pageable pageable) {
+        return phieuDatBanRepository.findAllWithRelations(pageable).map(this::convertToResponseDTO);
     }
 
-    public PhieuDatBanResponseDTO getPhieuDatBanById(String maPhieuDat) {
-        PhieuDatBan phieuDatBan = phieuDatBanRepository.findByMaPhieuDatIgnoreCase(maPhieuDat)
-                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy Phiếu Đặt Bàn với mã: " + maPhieuDat));
-        return convertToResponseDTO(phieuDatBan);
+    @Override
+    public PhieuDatBanResponseDTO getPhieuDatBanByMa(String maPhieuDat) {
+        PhieuDatBan pdb = phieuDatBanRepository.findByMaPhieuDatIgnoreCaseWithRelations(maPhieuDat)
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy Phiếu đặt với mã: " + maPhieuDat));
+        return convertToResponseDTO(pdb);
     }
 
+    @Override
+    @Transactional
     public PhieuDatBanResponseDTO createPhieuDatBan(PhieuDatBanCreateRequestDTO requestDTO) {
-        NhanVien nhanVien = nhanVienRepository.findByMaNVIgnoreCase(requestDTO.getMaNV())
-                .orElseThrow(() -> new ResourceNotFoundException("Nhân viên không tồn tại"));
-
-        KhachHang khachHang = null;
-        if (requestDTO.getMaKH() != null && !requestDTO.getMaKH().isEmpty()) {
-            khachHang = khachHangRepository.findByMaKHIgnoreCase(requestDTO.getMaKH())
-                    .orElseThrow(() -> new ResourceNotFoundException("Khách hàng không tồn tại"));
+        if (phieuDatBanRepository.findByMaPhieuDatIgnoreCaseWithRelations(requestDTO.getMaPhieuDat()).isPresent()) {
+            throw new DuplicateResourceException("Mã phiếu đặt đã tồn tại");
         }
 
-        PhieuDatBan phieuDatBan = PhieuDatBan.builder()
+        KhachHang kh = khachHangRepository.findByMaKHIgnoreCase(requestDTO.getMaKH())
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy Khách hàng: " + requestDTO.getMaKH()));
+        
+        NhanVien nv = null;
+        if (requestDTO.getMaNV() != null && !requestDTO.getMaNV().isBlank()) {
+            nv = nhanVienRepository.findByMaNVIgnoreCase(requestDTO.getMaNV())
+                    .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy Nhân viên: " + requestDTO.getMaNV()));
+        }
+
+        PhieuDatBan pdb = PhieuDatBan.builder()
                 .maPhieuDat(requestDTO.getMaPhieuDat())
-                .ngayLapPhieu(requestDTO.getNgayLapPhieu())
+                .ngayLapPhieu(LocalDateTime.now())
                 .thoiGianDen(requestDTO.getThoiGianDen())
                 .soLuongNguoi(requestDTO.getSoLuongNguoi())
                 .ghiChu(requestDTO.getGhiChu())
                 .trangThai(requestDTO.getTrangThai())
                 .tienDatCoc(requestDTO.getTienDatCoc())
-                .khachHang(khachHang)
-                .nhanVien(nhanVien)
+                .khachHang(kh)
+                .nhanVien(nv)
+                .chiTietPhieuDatBans(new ArrayList<>())
                 .build();
 
-        PhieuDatBan saved = phieuDatBanRepository.save(phieuDatBan);
-        return convertToResponseDTO(saved);
-    }
-
-    public PhieuDatBanResponseDTO updatePhieuDatBan(String maPhieuDat, PhieuDatBanUpdateRequestDTO requestDTO) {
-        PhieuDatBan phieuDatBan = phieuDatBanRepository.findByMaPhieuDatIgnoreCase(maPhieuDat)
-                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy Phiếu Đặt Bàn với mã: " + maPhieuDat));
-
-        NhanVien nhanVien = nhanVienRepository.findByMaNVIgnoreCase(requestDTO.getMaNV())
-                .orElseThrow(() -> new ResourceNotFoundException("Nhân viên không tồn tại"));
-
-        KhachHang khachHang = null;
-        if (requestDTO.getMaKH() != null && !requestDTO.getMaKH().isEmpty()) {
-            khachHang = khachHangRepository.findByMaKHIgnoreCase(requestDTO.getMaKH())
-                    .orElseThrow(() -> new ResourceNotFoundException("Khách hàng không tồn tại"));
+        if (requestDTO.getChiTiets() != null) {
+            for (ChiTietPhieuDatBanCreateRequestDTO cReq : requestDTO.getChiTiets()) {
+                BanAn ba = banAnRepository.findByMaBanIgnoreCase(cReq.getMaBan())
+                        .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy Bàn ăn: " + cReq.getMaBan()));
+                
+                ChiTietPhieuDatBan ct = ChiTietPhieuDatBan.builder()
+                        .phieuDatBan(pdb)
+                        .banAn(ba)
+                        .ghiChu(cReq.getGhiChu())
+                        .build();
+                pdb.getChiTietPhieuDatBans().add(ct);
+            }
         }
 
-        phieuDatBan.setNgayLapPhieu(requestDTO.getNgayLapPhieu());
-        phieuDatBan.setThoiGianDen(requestDTO.getThoiGianDen());
-        phieuDatBan.setSoLuongNguoi(requestDTO.getSoLuongNguoi());
-        phieuDatBan.setGhiChu(requestDTO.getGhiChu());
-        phieuDatBan.setTrangThai(requestDTO.getTrangThai());
-        phieuDatBan.setTienDatCoc(requestDTO.getTienDatCoc());
-        phieuDatBan.setKhachHang(khachHang);
-        phieuDatBan.setNhanVien(nhanVien);
-
-        PhieuDatBan updated = phieuDatBanRepository.save(phieuDatBan);
-        return convertToResponseDTO(updated);
+        return convertToResponseDTO(phieuDatBanRepository.save(pdb));
     }
 
+    @Override
+    @Transactional
+    public PhieuDatBanResponseDTO updatePhieuDatBan(String maPhieuDat, PhieuDatBanUpdateRequestDTO requestDTO) {
+        PhieuDatBan pdb = phieuDatBanRepository.findByMaPhieuDatIgnoreCaseWithRelations(maPhieuDat)
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy Phiếu đặt với mã: " + maPhieuDat));
+
+        pdb.setThoiGianDen(requestDTO.getThoiGianDen());
+        pdb.setSoLuongNguoi(requestDTO.getSoLuongNguoi());
+        pdb.setGhiChu(requestDTO.getGhiChu());
+        pdb.setTrangThai(requestDTO.getTrangThai());
+        pdb.setTienDatCoc(requestDTO.getTienDatCoc());
+
+        // Xóa chi tiết cũ và map chi tiết mới
+        if (requestDTO.getChiTiets() != null) {
+            pdb.getChiTietPhieuDatBans().clear();
+            for (ChiTietPhieuDatBanCreateRequestDTO cReq : requestDTO.getChiTiets()) {
+                BanAn ba = banAnRepository.findByMaBanIgnoreCase(cReq.getMaBan())
+                        .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy Bàn ăn: " + cReq.getMaBan()));
+                
+                ChiTietPhieuDatBan ct = ChiTietPhieuDatBan.builder()
+                        .phieuDatBan(pdb)
+                        .banAn(ba)
+                        .ghiChu(cReq.getGhiChu())
+                        .build();
+                pdb.getChiTietPhieuDatBans().add(ct);
+            }
+        }
+
+        return convertToResponseDTO(phieuDatBanRepository.save(pdb));
+    }
+
+    @Override
+    @Transactional
     public void deletePhieuDatBan(String maPhieuDat) {
-        PhieuDatBan phieuDatBan = phieuDatBanRepository.findByMaPhieuDatIgnoreCase(maPhieuDat).orElseThrow(() -> new ResourceNotFoundException("Khong tim thay"));
-        phieuDatBanRepository.delete(phieuDatBan);
+        PhieuDatBan pdb = phieuDatBanRepository.findByMaPhieuDatIgnoreCaseWithRelations(maPhieuDat)
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy Phiếu đặt với mã: " + maPhieuDat));
+        phieuDatBanRepository.delete(pdb);
     }
 
-    private PhieuDatBanResponseDTO convertToResponseDTO(PhieuDatBan phieuDatBan) {
+    private PhieuDatBanResponseDTO convertToResponseDTO(PhieuDatBan pdb) {
+        List<ChiTietPhieuDatBanResponseDTO> chiTiets = new ArrayList<>();
+        if (pdb.getChiTietPhieuDatBans() != null) {
+            chiTiets = pdb.getChiTietPhieuDatBans().stream().map(ct -> ChiTietPhieuDatBanResponseDTO.builder()
+                    .id(ct.getId())
+                    .maBan(ct.getBanAn() != null ? ct.getBanAn().getMaBan() : null)
+                    .viTri(ct.getBanAn() != null ? ct.getBanAn().getViTri() : null)
+                    .ghiChu(ct.getGhiChu())
+                    .build()).collect(Collectors.toList());
+        }
+
         return PhieuDatBanResponseDTO.builder()
-                .maPhieuDat(phieuDatBan.getMaPhieuDat())
-                .ngayLapPhieu(phieuDatBan.getNgayLapPhieu())
-                .thoiGianDen(phieuDatBan.getThoiGianDen())
-                .soLuongNguoi(phieuDatBan.getSoLuongNguoi())
-                .ghiChu(phieuDatBan.getGhiChu())
-                .trangThai(phieuDatBan.getTrangThai())
-                .tienDatCoc(phieuDatBan.getTienDatCoc())
-                .maKH(phieuDatBan.getKhachHang() != null ? phieuDatBan.getKhachHang().getMaKH() : null)
-                .hoTenKH(phieuDatBan.getKhachHang() != null ? phieuDatBan.getKhachHang().getHoTen() : null)
-                .maNV(phieuDatBan.getNhanVien() != null ? phieuDatBan.getNhanVien().getMaNV() : null)
-                .hoTenNV(phieuDatBan.getNhanVien() != null ? phieuDatBan.getNhanVien().getHoTen() : null)
+                .id(pdb.getId())
+                .maPhieuDat(pdb.getMaPhieuDat())
+                .ngayLapPhieu(pdb.getNgayLapPhieu())
+                .thoiGianDen(pdb.getThoiGianDen())
+                .soLuongNguoi(pdb.getSoLuongNguoi())
+                .ghiChu(pdb.getGhiChu())
+                .trangThai(pdb.getTrangThai())
+                .tienDatCoc(pdb.getTienDatCoc())
+                .maKH(pdb.getKhachHang() != null ? pdb.getKhachHang().getMaKH() : null)
+                .hoTenKH(pdb.getKhachHang() != null ? pdb.getKhachHang().getHoTen() : null)
+                .maNV(pdb.getNhanVien() != null ? pdb.getNhanVien().getMaNV() : null)
+                .hoTenNV(pdb.getNhanVien() != null ? pdb.getNhanVien().getHoTen() : null)
+                .chiTiets(chiTiets)
                 .build();
     }
 }

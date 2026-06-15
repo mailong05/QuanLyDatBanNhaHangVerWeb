@@ -1,7 +1,5 @@
 package com.QuanLyDatBanNhaHang.demo.dto.response;
 
-import com.QuanLyDatBanNhaHang.demo.enums.*;
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -14,6 +12,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @Builder
 public class KhuVucResponseDTO {
+    private Long id;
     private String maKhuVuc;
     private String tenKhuVuc;
 }

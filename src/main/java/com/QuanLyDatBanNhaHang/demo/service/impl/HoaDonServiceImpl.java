@@ -1,26 +1,37 @@
 package com.QuanLyDatBanNhaHang.demo.service.impl;
 
-import com.QuanLyDatBanNhaHang.demo.service.HoaDonService;
-
+import com.QuanLyDatBanNhaHang.demo.dto.request.ChiTietHoaDonCreateRequestDTO;
 import com.QuanLyDatBanNhaHang.demo.dto.request.HoaDonCreateRequestDTO;
 import com.QuanLyDatBanNhaHang.demo.dto.request.HoaDonUpdateRequestDTO;
+import com.QuanLyDatBanNhaHang.demo.dto.response.ChiTietHoaDonResponseDTO;
 import com.QuanLyDatBanNhaHang.demo.dto.response.HoaDonResponseDTO;
+import com.QuanLyDatBanNhaHang.demo.entity.ChiTietHoaDon;
 import com.QuanLyDatBanNhaHang.demo.entity.HoaDon;
 import com.QuanLyDatBanNhaHang.demo.entity.KhuyenMai;
+import com.QuanLyDatBanNhaHang.demo.entity.MonAn;
 import com.QuanLyDatBanNhaHang.demo.entity.NhanVien;
 import com.QuanLyDatBanNhaHang.demo.entity.PhieuDatBan;
 import com.QuanLyDatBanNhaHang.demo.entity.Thue;
+import com.QuanLyDatBanNhaHang.demo.exception.DuplicateResourceException;
+import com.QuanLyDatBanNhaHang.demo.exception.ResourceNotFoundException;
 import com.QuanLyDatBanNhaHang.demo.repository.HoaDonRepository;
 import com.QuanLyDatBanNhaHang.demo.repository.KhuyenMaiRepository;
+import com.QuanLyDatBanNhaHang.demo.repository.MonAnRepository;
 import com.QuanLyDatBanNhaHang.demo.repository.NhanVienRepository;
 import com.QuanLyDatBanNhaHang.demo.repository.PhieuDatBanRepository;
 import com.QuanLyDatBanNhaHang.demo.repository.ThueRepository;
+import com.QuanLyDatBanNhaHang.demo.service.HoaDonService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
-import com.QuanLyDatBanNhaHang.demo.exception.ResourceNotFoundException;
 
 @Service
 @RequiredArgsConstructor
@@ -31,120 +42,175 @@ public class HoaDonServiceImpl implements HoaDonService {
     private final NhanVienRepository nhanVienRepository;
     private final KhuyenMaiRepository khuyenMaiRepository;
     private final ThueRepository thueRepository;
+    private final MonAnRepository monAnRepository;
 
-    public List<HoaDonResponseDTO> getAllHoaDon() {
-        List<HoaDon> hoaDons = hoaDonRepository.findAllWithRelations();
-        return hoaDons.stream()
-                .map(this::convertToResponseDTO)
-                .collect(Collectors.toList());
+    @Override
+    public Page<HoaDonResponseDTO> getAllHoaDon(Pageable pageable) {
+        return hoaDonRepository.findAllWithRelations(pageable).map(this::convertToResponseDTO);
     }
 
-    public HoaDonResponseDTO getHoaDonById(String id) {
-        HoaDon hoaDon = hoaDonRepository.findByMaHDIgnoreCase(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy Hóa Đơn với ID: " + id));
-        return convertToResponseDTO(hoaDon);
+    @Override
+    public HoaDonResponseDTO getHoaDonByMa(String maHD) {
+        HoaDon hd = hoaDonRepository.findByMaHDIgnoreCaseWithRelations(maHD)
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy Hóa đơn với mã: " + maHD));
+        return convertToResponseDTO(hd);
     }
 
+    @Override
+    @Transactional
     public HoaDonResponseDTO createHoaDon(HoaDonCreateRequestDTO requestDTO) {
-        PhieuDatBan phieuDatBan = phieuDatBanRepository.findByMaPhieuDatIgnoreCase(requestDTO.getMaPhieuDat())
-                .orElseThrow(() -> new ResourceNotFoundException("Phiếu đặt bàn không tồn tại"));
-        NhanVien nhanVien = nhanVienRepository.findByMaNVIgnoreCase(requestDTO.getMaNV())
-                .orElseThrow(() -> new ResourceNotFoundException("Nhân viên không tồn tại"));
-        Thue thue = thueRepository.findByMaThueIgnoreCase(requestDTO.getMaThue())
-                .orElseThrow(() -> new ResourceNotFoundException("Thuế không tồn tại"));
-        
-        KhuyenMai khuyenMai = null;
-        if (requestDTO.getMaKM() != null && !requestDTO.getMaKM().isEmpty()) {
-            khuyenMai = khuyenMaiRepository.findByMaKMIgnoreCase(requestDTO.getMaKM())
-                    .orElseThrow(() -> new ResourceNotFoundException("Khuyến mãi không tồn tại"));
+        if (hoaDonRepository.findByMaHDIgnoreCaseWithRelations(requestDTO.getMaHD()).isPresent()) {
+            throw new DuplicateResourceException("Mã hóa đơn đã tồn tại");
         }
 
-        HoaDon hoaDon = HoaDon.builder()
+        PhieuDatBan pdb = phieuDatBanRepository.findByMaPhieuDatIgnoreCaseWithRelations(requestDTO.getMaPhieuDat())
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy Phiếu đặt: " + requestDTO.getMaPhieuDat()));
+        NhanVien nv = nhanVienRepository.findByMaNVIgnoreCase(requestDTO.getMaNV())
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy Nhân viên: " + requestDTO.getMaNV()));
+        Thue thue = thueRepository.findByMaThueIgnoreCase(requestDTO.getMaThue())
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy Thuế: " + requestDTO.getMaThue()));
+        
+        KhuyenMai km = null;
+        if (requestDTO.getMaKM() != null && !requestDTO.getMaKM().isBlank()) {
+            km = khuyenMaiRepository.findByMaKMIgnoreCase(requestDTO.getMaKM())
+                    .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy Khuyến mãi: " + requestDTO.getMaKM()));
+        }
+
+        HoaDon hd = HoaDon.builder()
                 .maHD(requestDTO.getMaHD())
                 .thueSuat(requestDTO.getThueSuat())
                 .tienThue(requestDTO.getTienThue())
                 .tyLePhiDV(requestDTO.getTyLePhiDV())
                 .tienPhiDV(requestDTO.getTienPhiDV())
-                .ngayTao(requestDTO.getNgayTao())
-                .gioVao(requestDTO.getGioVao())
-                .gioRa(requestDTO.getGioRa())
+                .ngayTao(LocalDateTime.now())
+                .gioVao(LocalTime.now())
                 .tongTienGoc(requestDTO.getTongTienGoc())
                 .tienGiamGia(requestDTO.getTienGiamGia())
                 .tongThanhToan(requestDTO.getTongThanhToan())
                 .phuongThucTT(requestDTO.getPhuongThucTT())
                 .trangThaiThanhToan(requestDTO.getTrangThaiThanhToan())
-                .phieuDatBan(phieuDatBan)
-                .nhanVien(nhanVien)
-                .khuyenMai(khuyenMai)
+                .phieuDatBan(pdb)
+                .nhanVien(nv)
                 .thue(thue)
+                .khuyenMai(km)
+                .chiTietHoaDons(new ArrayList<>())
                 .build();
 
-        HoaDon saved = hoaDonRepository.save(hoaDon);
-        return convertToResponseDTO(saved);
-    }
-
-    public HoaDonResponseDTO updateHoaDon(String id, HoaDonUpdateRequestDTO requestDTO) {
-        HoaDon hoaDon = hoaDonRepository.findByMaHDIgnoreCase(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy Hóa Đơn với ID: " + id));
-
-        PhieuDatBan phieuDatBan = phieuDatBanRepository.findByMaPhieuDatIgnoreCase(requestDTO.getMaPhieuDat())
-                .orElseThrow(() -> new ResourceNotFoundException("Phiếu đặt bàn không tồn tại"));
-        NhanVien nhanVien = nhanVienRepository.findByMaNVIgnoreCase(requestDTO.getMaNV())
-                .orElseThrow(() -> new ResourceNotFoundException("Nhân viên không tồn tại"));
-        Thue thue = thueRepository.findByMaThueIgnoreCase(requestDTO.getMaThue())
-                .orElseThrow(() -> new ResourceNotFoundException("Thuế không tồn tại"));
-        
-        KhuyenMai khuyenMai = null;
-        if (requestDTO.getMaKM() != null && !requestDTO.getMaKM().isEmpty()) {
-            khuyenMai = khuyenMaiRepository.findByMaKMIgnoreCase(requestDTO.getMaKM())
-                    .orElseThrow(() -> new ResourceNotFoundException("Khuyến mãi không tồn tại"));
+        if (requestDTO.getChiTiets() != null) {
+            for (ChiTietHoaDonCreateRequestDTO cReq : requestDTO.getChiTiets()) {
+                MonAn ma = monAnRepository.findByMaMonIgnoreCase(cReq.getMaMon())
+                        .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy Món ăn: " + cReq.getMaMon()));
+                
+                Double thanhTien = ma.getDonGia() * cReq.getSoLuong();
+                
+                ChiTietHoaDon ct = ChiTietHoaDon.builder()
+                        .hoaDon(hd)
+                        .monAn(ma)
+                        .soLuong(cReq.getSoLuong())
+                        .donGiaLuuTru(ma.getDonGia())
+                        .thanhTien(thanhTien)
+                        .ghiChu(cReq.getGhiChu())
+                        .build();
+                hd.getChiTietHoaDons().add(ct);
+            }
         }
 
-        hoaDon.setThueSuat(requestDTO.getThueSuat());
-        hoaDon.setTienThue(requestDTO.getTienThue());
-        hoaDon.setTyLePhiDV(requestDTO.getTyLePhiDV());
-        hoaDon.setTienPhiDV(requestDTO.getTienPhiDV());
-        hoaDon.setNgayTao(requestDTO.getNgayTao());
-        hoaDon.setGioVao(requestDTO.getGioVao());
-        hoaDon.setGioRa(requestDTO.getGioRa());
-        hoaDon.setTongTienGoc(requestDTO.getTongTienGoc());
-        hoaDon.setTienGiamGia(requestDTO.getTienGiamGia());
-        hoaDon.setTongThanhToan(requestDTO.getTongThanhToan());
-        hoaDon.setPhuongThucTT(requestDTO.getPhuongThucTT());
-        hoaDon.setTrangThaiThanhToan(requestDTO.getTrangThaiThanhToan());
-        hoaDon.setPhieuDatBan(phieuDatBan);
-        hoaDon.setNhanVien(nhanVien);
-        hoaDon.setKhuyenMai(khuyenMai);
-        hoaDon.setThue(thue);
-
-        HoaDon updated = hoaDonRepository.save(hoaDon);
-        return convertToResponseDTO(updated);
+        return convertToResponseDTO(hoaDonRepository.save(hd));
     }
 
-    public void deleteHoaDon(String id) {
-        HoaDon hoaDon = hoaDonRepository.findByMaHDIgnoreCase(id).orElseThrow(() -> new ResourceNotFoundException("Khong tim thay"));
-        hoaDonRepository.delete(hoaDon);
+    @Override
+    @Transactional
+    public HoaDonResponseDTO updateHoaDon(String maHD, HoaDonUpdateRequestDTO requestDTO) {
+        HoaDon hd = hoaDonRepository.findByMaHDIgnoreCaseWithRelations(maHD)
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy Hóa đơn với mã: " + maHD));
+
+        Thue thue = thueRepository.findByMaThueIgnoreCase(requestDTO.getMaThue())
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy Thuế: " + requestDTO.getMaThue()));
+        
+        KhuyenMai km = null;
+        if (requestDTO.getMaKM() != null && !requestDTO.getMaKM().isBlank()) {
+            km = khuyenMaiRepository.findByMaKMIgnoreCase(requestDTO.getMaKM())
+                    .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy Khuyến mãi: " + requestDTO.getMaKM()));
+        }
+
+        hd.setThueSuat(requestDTO.getThueSuat());
+        hd.setTienThue(requestDTO.getTienThue());
+        hd.setTyLePhiDV(requestDTO.getTyLePhiDV());
+        hd.setTienPhiDV(requestDTO.getTienPhiDV());
+        hd.setTongTienGoc(requestDTO.getTongTienGoc());
+        hd.setTienGiamGia(requestDTO.getTienGiamGia());
+        hd.setTongThanhToan(requestDTO.getTongThanhToan());
+        hd.setPhuongThucTT(requestDTO.getPhuongThucTT());
+        hd.setTrangThaiThanhToan(requestDTO.getTrangThaiThanhToan());
+        hd.setThue(thue);
+        hd.setKhuyenMai(km);
+
+        if (requestDTO.getChiTiets() != null) {
+            hd.getChiTietHoaDons().clear();
+            for (ChiTietHoaDonCreateRequestDTO cReq : requestDTO.getChiTiets()) {
+                MonAn ma = monAnRepository.findByMaMonIgnoreCase(cReq.getMaMon())
+                        .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy Món ăn: " + cReq.getMaMon()));
+                
+                Double thanhTien = ma.getDonGia() * cReq.getSoLuong();
+                
+                ChiTietHoaDon ct = ChiTietHoaDon.builder()
+                        .hoaDon(hd)
+                        .monAn(ma)
+                        .soLuong(cReq.getSoLuong())
+                        .donGiaLuuTru(ma.getDonGia())
+                        .thanhTien(thanhTien)
+                        .ghiChu(cReq.getGhiChu())
+                        .build();
+                hd.getChiTietHoaDons().add(ct);
+            }
+        }
+
+        return convertToResponseDTO(hoaDonRepository.save(hd));
     }
 
-    private HoaDonResponseDTO convertToResponseDTO(HoaDon hoaDon) {
+    @Override
+    @Transactional
+    public void deleteHoaDon(String maHD) {
+        HoaDon hd = hoaDonRepository.findByMaHDIgnoreCaseWithRelations(maHD)
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy Hóa đơn với mã: " + maHD));
+        hoaDonRepository.delete(hd);
+    }
+
+    private HoaDonResponseDTO convertToResponseDTO(HoaDon hd) {
+        List<ChiTietHoaDonResponseDTO> chiTiets = new ArrayList<>();
+        if (hd.getChiTietHoaDons() != null) {
+            chiTiets = hd.getChiTietHoaDons().stream().map(ct -> ChiTietHoaDonResponseDTO.builder()
+                    .id(ct.getId())
+                    .maMon(ct.getMonAn() != null ? ct.getMonAn().getMaMon() : null)
+                    .tenMon(ct.getMonAn() != null ? ct.getMonAn().getTenMon() : null)
+                    .soLuong(ct.getSoLuong())
+                    .donGiaLuuTru(ct.getDonGiaLuuTru())
+                    .thanhTien(ct.getThanhTien())
+                    .ghiChu(ct.getGhiChu())
+                    .build()).collect(Collectors.toList());
+        }
+
         return HoaDonResponseDTO.builder()
-                .maHD(hoaDon.getMaHD())
-                .thueSuat(hoaDon.getThueSuat())
-                .tienThue(hoaDon.getTienThue())
-                .tyLePhiDV(hoaDon.getTyLePhiDV())
-                .tienPhiDV(hoaDon.getTienPhiDV())
-                .ngayTao(hoaDon.getNgayTao())
-                .gioVao(hoaDon.getGioVao())
-                .gioRa(hoaDon.getGioRa())
-                .tongTienGoc(hoaDon.getTongTienGoc())
-                .tienGiamGia(hoaDon.getTienGiamGia())
-                .tongThanhToan(hoaDon.getTongThanhToan())
-                .phuongThucTT(hoaDon.getPhuongThucTT())
-                .trangThaiThanhToan(hoaDon.getTrangThaiThanhToan())
-                .maPhieuDat(hoaDon.getPhieuDatBan() != null ? hoaDon.getPhieuDatBan().getMaPhieuDat() : null)
-                .hoTenNV(hoaDon.getNhanVien() != null ? hoaDon.getNhanVien().getHoTen() : null)
-                .maKM(hoaDon.getKhuyenMai() != null ? hoaDon.getKhuyenMai().getMaKM() : null)
-                .maThue(hoaDon.getThue() != null ? hoaDon.getThue().getMaThue() : null)
+                .id(hd.getId())
+                .maHD(hd.getMaHD())
+                .thueSuat(hd.getThueSuat())
+                .tienThue(hd.getTienThue())
+                .tyLePhiDV(hd.getTyLePhiDV())
+                .tienPhiDV(hd.getTienPhiDV())
+                .ngayTao(hd.getNgayTao())
+                .gioVao(hd.getGioVao())
+                .gioRa(hd.getGioRa())
+                .tongTienGoc(hd.getTongTienGoc())
+                .tienGiamGia(hd.getTienGiamGia())
+                .tongThanhToan(hd.getTongThanhToan())
+                .phuongThucTT(hd.getPhuongThucTT())
+                .trangThaiThanhToan(hd.getTrangThaiThanhToan())
+                .maPhieuDat(hd.getPhieuDatBan() != null ? hd.getPhieuDatBan().getMaPhieuDat() : null)
+                .maNV(hd.getNhanVien() != null ? hd.getNhanVien().getMaNV() : null)
+                .hoTenNV(hd.getNhanVien() != null ? hd.getNhanVien().getHoTen() : null)
+                .maKM(hd.getKhuyenMai() != null ? hd.getKhuyenMai().getMaKM() : null)
+                .maThue(hd.getThue() != null ? hd.getThue().getMaThue() : null)
+                .chiTiets(chiTiets)
                 .build();
     }
 }

@@ -1,7 +1,6 @@
 package com.QuanLyDatBanNhaHang.demo.dto.response;
 
-import com.QuanLyDatBanNhaHang.demo.enums.*;
-
+import com.QuanLyDatBanNhaHang.demo.enums.QuyenHanTaiKhoan;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -14,10 +13,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @Builder
 public class TaiKhoanResponseDTO {
+    private Long id;
     private String username;
     private QuyenHanTaiKhoan quyenHan;
-    
-    // Flatten fields
-    private String maNV;
-    private String tenNV;
 }

@@ -3,12 +3,13 @@ package com.QuanLyDatBanNhaHang.demo.service;
 import com.QuanLyDatBanNhaHang.demo.dto.request.NhanVienCreateRequestDTO;
 import com.QuanLyDatBanNhaHang.demo.dto.request.NhanVienUpdateRequestDTO;
 import com.QuanLyDatBanNhaHang.demo.dto.response.NhanVienResponseDTO;
-import java.util.List;
-import java.util.stream.Collectors;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 public interface NhanVienService {
-    List<NhanVienResponseDTO> getAllNhanVien();
-    NhanVienResponseDTO getNhanVienById(String maNV);
+    Page<NhanVienResponseDTO> getAllNhanVien(Pageable pageable);
+    Page<NhanVienResponseDTO> searchNhanVien(String keyword, Pageable pageable);
+    NhanVienResponseDTO getNhanVienByMa(String maNV);
     NhanVienResponseDTO createNhanVien(NhanVienCreateRequestDTO requestDTO);
     NhanVienResponseDTO updateNhanVien(String maNV, NhanVienUpdateRequestDTO requestDTO);
     void deleteNhanVien(String maNV);

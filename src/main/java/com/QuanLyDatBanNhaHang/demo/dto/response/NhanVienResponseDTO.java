@@ -1,7 +1,7 @@
 package com.QuanLyDatBanNhaHang.demo.dto.response;
 
-import com.QuanLyDatBanNhaHang.demo.enums.*;
-
+import com.QuanLyDatBanNhaHang.demo.enums.ChucVuNhanVien;
+import com.QuanLyDatBanNhaHang.demo.enums.TrangThaiNhanVien;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -16,6 +16,7 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @Builder
 public class NhanVienResponseDTO {
+    private Long id;
     private String maNV;
     private String hoTen;
     private String sdt;
@@ -23,5 +24,7 @@ public class NhanVienResponseDTO {
     private LocalDate ngayVaoLam;
     private Double luongCoBan;
     private TrangThaiNhanVien trangThai;
-    // Không trả về đối tượng TaiKhoan hay thông tin mật khẩu vì lý do bảo mật
+    
+    private String username;
+    private String quyenHan; // Derived from TaiKhoan
 }

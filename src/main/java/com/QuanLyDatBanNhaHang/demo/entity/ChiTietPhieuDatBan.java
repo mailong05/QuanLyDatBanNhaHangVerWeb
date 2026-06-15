@@ -25,21 +25,15 @@ public class ChiTietPhieuDatBan extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "maPhieuDat", length = 20)
-    private String maPhieuDat;
-
-    @Column(name = "maBan", length = 20)
-    private String maBan;
-
     @Column(name = "ghiChu", length = 255)
     private String ghiChu;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "maPhieuDat", insertable = false, updatable = false)
+    @JoinColumn(name = "maPhieuDat", nullable = false)
     private PhieuDatBan phieuDatBan;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "maBan", insertable = false, updatable = false)
+    @JoinColumn(name = "maBan", nullable = false)
     private BanAn banAn;
 }
 

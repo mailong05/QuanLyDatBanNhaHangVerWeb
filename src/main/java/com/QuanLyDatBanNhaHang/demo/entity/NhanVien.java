@@ -1,6 +1,7 @@
 package com.QuanLyDatBanNhaHang.demo.entity;
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.Nationalized;
 import com.QuanLyDatBanNhaHang.demo.enums.*;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -29,6 +30,7 @@ public class NhanVien extends BaseEntity {
     @Column(name = "maNV", length = 20, unique = true, nullable = false, updatable = false)
     private String maNV;
 
+    @Nationalized
     @Column(name = "hoTen", nullable = false, length = 100)
     private String hoTen;
 
@@ -50,7 +52,10 @@ public class NhanVien extends BaseEntity {
     private TrangThaiNhanVien trangThai;
 
     @OneToMany(mappedBy = "nhanVien", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<CaLamViec> caLamViecs;
+    private List<PhanCong> phanCongs;
+
+    @OneToMany(mappedBy = "nhanVien", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<GiaoCa> giaoCas;
 
     @OneToMany(mappedBy = "nhanVien", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<PhieuDatBan> phieuDatBans;
@@ -58,7 +63,7 @@ public class NhanVien extends BaseEntity {
     @OneToMany(mappedBy = "nhanVien", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<HoaDon> hoaDons;
 
-    @OneToOne(mappedBy = "nhanVien", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "taiKhoanId")
     private TaiKhoan taiKhoan;
 }
-

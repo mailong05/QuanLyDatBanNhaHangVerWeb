@@ -1,88 +1,76 @@
 package com.QuanLyDatBanNhaHang.demo.service.impl;
 
-import com.QuanLyDatBanNhaHang.demo.service.TaiKhoanService;
-
 import com.QuanLyDatBanNhaHang.demo.dto.request.TaiKhoanCreateRequestDTO;
 import com.QuanLyDatBanNhaHang.demo.dto.request.TaiKhoanUpdateRequestDTO;
 import com.QuanLyDatBanNhaHang.demo.dto.response.TaiKhoanResponseDTO;
-import com.QuanLyDatBanNhaHang.demo.entity.NhanVien;
 import com.QuanLyDatBanNhaHang.demo.entity.TaiKhoan;
-import com.QuanLyDatBanNhaHang.demo.repository.NhanVienRepository;
-import com.QuanLyDatBanNhaHang.demo.repository.TaiKhoanRepository;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-
-import java.util.List;
-import java.util.stream.Collectors;
+import com.QuanLyDatBanNhaHang.demo.exception.DuplicateResourceException;
 import com.QuanLyDatBanNhaHang.demo.exception.ResourceNotFoundException;
+import com.QuanLyDatBanNhaHang.demo.repository.TaiKhoanRepository;
+import com.QuanLyDatBanNhaHang.demo.service.TaiKhoanService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
 public class TaiKhoanServiceImpl implements TaiKhoanService {
 
     private final TaiKhoanRepository taiKhoanRepository;
-    private final NhanVienRepository nhanVienRepository;
 
-    public List<TaiKhoanResponseDTO> getAllTaiKhoan() {
-        List<TaiKhoan> taiKhoans = taiKhoanRepository.findAllWithRelations();
-        return taiKhoans.stream()
-                .map(this::convertToResponseDTO)
-                .collect(Collectors.toList());
+    @Override
+    public Page<TaiKhoanResponseDTO> getAllTaiKhoan(Pageable pageable) {
+        return taiKhoanRepository.findAll(pageable).map(this::convertToResponseDTO);
     }
 
-    public TaiKhoanResponseDTO getTaiKhoanById(String username) {
-        TaiKhoan taiKhoan = taiKhoanRepository.findByUsernameIgnoreCase(username)
-                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy Tài Khoản với Username: " + username));
-        return convertToResponseDTO(taiKhoan);
+    @Override
+    public TaiKhoanResponseDTO getTaiKhoanByUsername(String username) {
+        TaiKhoan tk = taiKhoanRepository.findByUsernameIgnoreCase(username)
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy Tài khoản với username: " + username));
+        return convertToResponseDTO(tk);
     }
 
+    @Override
     public TaiKhoanResponseDTO createTaiKhoan(TaiKhoanCreateRequestDTO requestDTO) {
-        NhanVien nhanVien = nhanVienRepository.findByMaNVIgnoreCase(requestDTO.getMaNV())
-                .orElseThrow(() -> new ResourceNotFoundException("Nhân viên không tồn tại"));
-
-        // Normally you would hash the password here using BCrypt or similar
-        // String hashedPassword = passwordEncoder.encode(requestDTO.getPassword());
-        
-        TaiKhoan taiKhoan = TaiKhoan.builder()
-                .username(requestDTO.getUsername())
-                .password(requestDTO.getPassword()) // Use hashed password in real app
-                .quyenHan(requestDTO.getQuyenHan())
-                .nhanVien(nhanVien)
-                .build();
-
-        TaiKhoan saved = taiKhoanRepository.save(taiKhoan);
-        return convertToResponseDTO(saved);
-    }
-
-    public TaiKhoanResponseDTO updateTaiKhoan(String username, TaiKhoanUpdateRequestDTO requestDTO) {
-        TaiKhoan taiKhoan = taiKhoanRepository.findByUsernameIgnoreCase(username)
-                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy Tài Khoản với Username: " + username));
-
-        NhanVien nhanVien = nhanVienRepository.findByMaNVIgnoreCase(requestDTO.getMaNV())
-                .orElseThrow(() -> new ResourceNotFoundException("Nhân viên không tồn tại"));
-
-        taiKhoan.setQuyenHan(requestDTO.getQuyenHan());
-        taiKhoan.setNhanVien(nhanVien);
-
-        if (requestDTO.getPassword() != null && !requestDTO.getPassword().isEmpty()) {
-            taiKhoan.setPassword(requestDTO.getPassword()); // Hash it if needed
+        if (taiKhoanRepository.findByUsernameIgnoreCase(requestDTO.getUsername()).isPresent()) {
+            throw new DuplicateResourceException("Username đã tồn tại");
         }
-
-        TaiKhoan updated = taiKhoanRepository.save(taiKhoan);
-        return convertToResponseDTO(updated);
+        
+        TaiKhoan tk = TaiKhoan.builder()
+                .username(requestDTO.getUsername())
+                .password(requestDTO.getPassword()) // Trong thực tế cần encode (VD: BCrypt)
+                .quyenHan(requestDTO.getQuyenHan())
+                .build();
+                
+        return convertToResponseDTO(taiKhoanRepository.save(tk));
     }
 
+    @Override
+    public TaiKhoanResponseDTO updateTaiKhoan(String username, TaiKhoanUpdateRequestDTO requestDTO) {
+        TaiKhoan tk = taiKhoanRepository.findByUsernameIgnoreCase(username)
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy Tài khoản với username: " + username));
+                
+        if (requestDTO.getPassword() != null && !requestDTO.getPassword().trim().isEmpty()) {
+            tk.setPassword(requestDTO.getPassword());
+        }
+        tk.setQuyenHan(requestDTO.getQuyenHan());
+        
+        return convertToResponseDTO(taiKhoanRepository.save(tk));
+    }
+
+    @Override
     public void deleteTaiKhoan(String username) {
-        TaiKhoan taiKhoan = taiKhoanRepository.findByUsernameIgnoreCase(username).orElseThrow(() -> new ResourceNotFoundException("Khong tim thay"));
-        taiKhoanRepository.delete(taiKhoan);
+        TaiKhoan tk = taiKhoanRepository.findByUsernameIgnoreCase(username)
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy Tài khoản với username: " + username));
+        taiKhoanRepository.delete(tk);
     }
 
-    private TaiKhoanResponseDTO convertToResponseDTO(TaiKhoan taiKhoan) {
+    private TaiKhoanResponseDTO convertToResponseDTO(TaiKhoan tk) {
         return TaiKhoanResponseDTO.builder()
-                .username(taiKhoan.getUsername())
-                .quyenHan(taiKhoan.getQuyenHan())
-                .maNV(taiKhoan.getNhanVien() != null ? taiKhoan.getNhanVien().getMaNV() : null)
-                .tenNV(taiKhoan.getNhanVien() != null ? taiKhoan.getNhanVien().getHoTen() : null)
+                .id(tk.getId())
+                .username(tk.getUsername())
+                .quyenHan(tk.getQuyenHan())
                 .build();
     }
 }

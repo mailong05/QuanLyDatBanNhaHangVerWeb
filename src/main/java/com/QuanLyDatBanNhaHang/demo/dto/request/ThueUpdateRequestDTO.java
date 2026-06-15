@@ -1,8 +1,6 @@
 package com.QuanLyDatBanNhaHang.demo.dto.request;
 
-import com.QuanLyDatBanNhaHang.demo.enums.*;
-import jakarta.validation.constraints.Pattern;
-
+import com.QuanLyDatBanNhaHang.demo.enums.TrangThaiThue;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -17,7 +15,6 @@ import lombok.Setter;
 @AllArgsConstructor
 @Builder
 public class ThueUpdateRequestDTO {
-    
     @NotBlank(message = "Tên thuế không được để trống")
     private String tenThue;
 

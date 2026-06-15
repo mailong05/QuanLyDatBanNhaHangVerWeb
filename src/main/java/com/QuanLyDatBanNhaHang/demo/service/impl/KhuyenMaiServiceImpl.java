@@ -1,18 +1,17 @@
 package com.QuanLyDatBanNhaHang.demo.service.impl;
 
-import com.QuanLyDatBanNhaHang.demo.service.KhuyenMaiService;
-
 import com.QuanLyDatBanNhaHang.demo.dto.request.KhuyenMaiCreateRequestDTO;
 import com.QuanLyDatBanNhaHang.demo.dto.request.KhuyenMaiUpdateRequestDTO;
 import com.QuanLyDatBanNhaHang.demo.dto.response.KhuyenMaiResponseDTO;
 import com.QuanLyDatBanNhaHang.demo.entity.KhuyenMai;
-import com.QuanLyDatBanNhaHang.demo.repository.KhuyenMaiRepository;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-
-import java.util.List;
-import java.util.stream.Collectors;
+import com.QuanLyDatBanNhaHang.demo.exception.DuplicateResourceException;
 import com.QuanLyDatBanNhaHang.demo.exception.ResourceNotFoundException;
+import com.QuanLyDatBanNhaHang.demo.repository.KhuyenMaiRepository;
+import com.QuanLyDatBanNhaHang.demo.service.KhuyenMaiService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
@@ -20,20 +19,25 @@ public class KhuyenMaiServiceImpl implements KhuyenMaiService {
 
     private final KhuyenMaiRepository khuyenMaiRepository;
 
-    public List<KhuyenMaiResponseDTO> getAllKhuyenMai() {
-        return khuyenMaiRepository.findAll().stream()
-                .map(this::convertToResponseDTO)
-                .collect(Collectors.toList());
+    @Override
+    public Page<KhuyenMaiResponseDTO> getAllKhuyenMai(Pageable pageable) {
+        return khuyenMaiRepository.findAll(pageable).map(this::convertToResponseDTO);
     }
 
-    public KhuyenMaiResponseDTO getKhuyenMaiById(String maKM) {
-        KhuyenMai khuyenMai = khuyenMaiRepository.findByMaKMIgnoreCase(maKM)
-                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy Khuyến Mãi với mã: " + maKM));
-        return convertToResponseDTO(khuyenMai);
+    @Override
+    public KhuyenMaiResponseDTO getKhuyenMaiByMa(String maKM) {
+        KhuyenMai km = khuyenMaiRepository.findByMaKMIgnoreCase(maKM)
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy Khuyến mãi với mã: " + maKM));
+        return convertToResponseDTO(km);
     }
 
+    @Override
     public KhuyenMaiResponseDTO createKhuyenMai(KhuyenMaiCreateRequestDTO requestDTO) {
-        KhuyenMai khuyenMai = KhuyenMai.builder()
+        if (khuyenMaiRepository.findByMaKMIgnoreCase(requestDTO.getMaKM()).isPresent()) {
+            throw new DuplicateResourceException("Mã khuyến mãi đã tồn tại");
+        }
+        
+        KhuyenMai km = KhuyenMai.builder()
                 .maKM(requestDTO.getMaKM())
                 .tenKM(requestDTO.getTenKM())
                 .giaTriGiam(requestDTO.getGiaTriGiam())
@@ -42,40 +46,42 @@ public class KhuyenMaiServiceImpl implements KhuyenMaiService {
                 .dieuKienToiThieu(requestDTO.getDieuKienToiThieu())
                 .trangThai(requestDTO.getTrangThai())
                 .build();
-
-        KhuyenMai saved = khuyenMaiRepository.save(khuyenMai);
-        return convertToResponseDTO(saved);
+                
+        return convertToResponseDTO(khuyenMaiRepository.save(km));
     }
 
+    @Override
     public KhuyenMaiResponseDTO updateKhuyenMai(String maKM, KhuyenMaiUpdateRequestDTO requestDTO) {
-        KhuyenMai khuyenMai = khuyenMaiRepository.findByMaKMIgnoreCase(maKM)
-                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy Khuyến Mãi với mã: " + maKM));
+        KhuyenMai km = khuyenMaiRepository.findByMaKMIgnoreCase(maKM)
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy Khuyến mãi với mã: " + maKM));
+                
+        km.setTenKM(requestDTO.getTenKM());
+        km.setGiaTriGiam(requestDTO.getGiaTriGiam());
+        km.setNgayBatDau(requestDTO.getNgayBatDau());
+        km.setNgayKetThuc(requestDTO.getNgayKetThuc());
+        km.setDieuKienToiThieu(requestDTO.getDieuKienToiThieu());
+        km.setTrangThai(requestDTO.getTrangThai());
 
-        khuyenMai.setTenKM(requestDTO.getTenKM());
-        khuyenMai.setGiaTriGiam(requestDTO.getGiaTriGiam());
-        khuyenMai.setNgayBatDau(requestDTO.getNgayBatDau());
-        khuyenMai.setNgayKetThuc(requestDTO.getNgayKetThuc());
-        khuyenMai.setDieuKienToiThieu(requestDTO.getDieuKienToiThieu());
-        khuyenMai.setTrangThai(requestDTO.getTrangThai());
-
-        KhuyenMai updated = khuyenMaiRepository.save(khuyenMai);
-        return convertToResponseDTO(updated);
+        return convertToResponseDTO(khuyenMaiRepository.save(km));
     }
 
+    @Override
     public void deleteKhuyenMai(String maKM) {
-        KhuyenMai khuyenMai = khuyenMaiRepository.findByMaKMIgnoreCase(maKM).orElseThrow(() -> new ResourceNotFoundException("Khong tim thay"));
-        khuyenMaiRepository.delete(khuyenMai);
+        KhuyenMai km = khuyenMaiRepository.findByMaKMIgnoreCase(maKM)
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy Khuyến mãi với mã: " + maKM));
+        khuyenMaiRepository.delete(km);
     }
 
-    private KhuyenMaiResponseDTO convertToResponseDTO(KhuyenMai khuyenMai) {
+    private KhuyenMaiResponseDTO convertToResponseDTO(KhuyenMai km) {
         return KhuyenMaiResponseDTO.builder()
-                .maKM(khuyenMai.getMaKM())
-                .tenKM(khuyenMai.getTenKM())
-                .giaTriGiam(khuyenMai.getGiaTriGiam())
-                .ngayBatDau(khuyenMai.getNgayBatDau())
-                .ngayKetThuc(khuyenMai.getNgayKetThuc())
-                .dieuKienToiThieu(khuyenMai.getDieuKienToiThieu())
-                .trangThai(khuyenMai.getTrangThai())
+                .id(km.getId())
+                .maKM(km.getMaKM())
+                .tenKM(km.getTenKM())
+                .giaTriGiam(km.getGiaTriGiam())
+                .ngayBatDau(km.getNgayBatDau())
+                .ngayKetThuc(km.getNgayKetThuc())
+                .dieuKienToiThieu(km.getDieuKienToiThieu())
+                .trangThai(km.getTrangThai())
                 .build();
     }
 }

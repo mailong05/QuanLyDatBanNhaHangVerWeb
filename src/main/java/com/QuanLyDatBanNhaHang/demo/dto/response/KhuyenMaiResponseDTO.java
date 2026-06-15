@@ -1,7 +1,6 @@
 package com.QuanLyDatBanNhaHang.demo.dto.response;
 
-import com.QuanLyDatBanNhaHang.demo.enums.*;
-
+import com.QuanLyDatBanNhaHang.demo.enums.TrangThaiKhuyenMai;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -16,6 +15,7 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @Builder
 public class KhuyenMaiResponseDTO {
+    private Long id;
     private String maKM;
     private String tenKM;
     private Double giaTriGiam;

@@ -1,10 +1,10 @@
 package com.QuanLyDatBanNhaHang.demo.dto.request;
 
-import com.QuanLyDatBanNhaHang.demo.enums.*;
-import jakarta.validation.constraints.Pattern;
-
+import com.QuanLyDatBanNhaHang.demo.enums.ChucVuNhanVien;
+import com.QuanLyDatBanNhaHang.demo.enums.TrangThaiNhanVien;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -40,4 +40,6 @@ public class NhanVienCreateRequestDTO {
 
     @NotNull(message = "Trạng thái không được để trống")
     private TrangThaiNhanVien trangThai;
+
+    private String username; // Optional
 }

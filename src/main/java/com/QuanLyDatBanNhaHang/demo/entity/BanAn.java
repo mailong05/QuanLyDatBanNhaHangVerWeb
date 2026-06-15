@@ -1,6 +1,7 @@
 package com.QuanLyDatBanNhaHang.demo.entity;
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.Nationalized;
 import com.QuanLyDatBanNhaHang.demo.enums.*;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -31,6 +32,7 @@ public class BanAn extends BaseEntity {
     @Column(name = "soGhe")
     private Integer soGhe;
 
+    @Nationalized
     @Column(name = "viTri", length = 100)
     private String viTri;
 

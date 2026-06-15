@@ -32,9 +32,5 @@ public class TaiKhoan extends BaseEntity {
     @Enumerated(EnumType.STRING)
     @Column(name = "quyenHan", nullable = false, length = 50)
     private QuyenHanTaiKhoan quyenHan;
-
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "maNV", nullable = false, unique = true)
-    private NhanVien nhanVien;
 }
 

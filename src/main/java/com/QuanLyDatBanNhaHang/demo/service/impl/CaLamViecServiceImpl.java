@@ -1,94 +1,78 @@
 package com.QuanLyDatBanNhaHang.demo.service.impl;
 
-import com.QuanLyDatBanNhaHang.demo.service.CaLamViecService;
-
 import com.QuanLyDatBanNhaHang.demo.dto.request.CaLamViecCreateRequestDTO;
 import com.QuanLyDatBanNhaHang.demo.dto.request.CaLamViecUpdateRequestDTO;
 import com.QuanLyDatBanNhaHang.demo.dto.response.CaLamViecResponseDTO;
 import com.QuanLyDatBanNhaHang.demo.entity.CaLamViec;
-import com.QuanLyDatBanNhaHang.demo.entity.NhanVien;
-import com.QuanLyDatBanNhaHang.demo.repository.CaLamViecRepository;
-import com.QuanLyDatBanNhaHang.demo.repository.NhanVienRepository;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-
-import java.util.List;
-import java.util.stream.Collectors;
+import com.QuanLyDatBanNhaHang.demo.exception.DuplicateResourceException;
 import com.QuanLyDatBanNhaHang.demo.exception.ResourceNotFoundException;
+import com.QuanLyDatBanNhaHang.demo.repository.CaLamViecRepository;
+import com.QuanLyDatBanNhaHang.demo.service.CaLamViecService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
 public class CaLamViecServiceImpl implements CaLamViecService {
 
     private final CaLamViecRepository caLamViecRepository;
-    private final NhanVienRepository nhanVienRepository;
 
-    public List<CaLamViecResponseDTO> getAllCaLamViec() {
-        return caLamViecRepository.findAllWithRelations().stream()
-                .map(this::convertToResponseDTO)
-                .collect(Collectors.toList());
+    @Override
+    public Page<CaLamViecResponseDTO> getAllCaLamViec(Pageable pageable) {
+        return caLamViecRepository.findAll(pageable).map(this::convertToResponseDTO);
     }
 
-    public CaLamViecResponseDTO getCaLamViecById(String maCa) {
-        CaLamViec caLamViec = caLamViecRepository.findByMaCaIgnoreCase(maCa)
+    @Override
+    public CaLamViecResponseDTO getCaLamViecByMa(String maCa) {
+        CaLamViec ca = caLamViecRepository.findByMaCaIgnoreCase(maCa)
                 .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy Ca Làm Việc với mã: " + maCa));
-        return convertToResponseDTO(caLamViec);
+        return convertToResponseDTO(ca);
     }
 
+    @Override
     public CaLamViecResponseDTO createCaLamViec(CaLamViecCreateRequestDTO requestDTO) {
-        NhanVien nhanVien = nhanVienRepository.findByMaNVIgnoreCase(requestDTO.getMaNV())
-                .orElseThrow(() -> new ResourceNotFoundException("Nhân viên không tồn tại"));
-
+        if (caLamViecRepository.findByMaCaIgnoreCase(requestDTO.getMaCa()).isPresent()) {
+            throw new DuplicateResourceException("Mã ca làm việc đã tồn tại");
+        }
+        
         CaLamViec caLamViec = CaLamViec.builder()
                 .maCa(requestDTO.getMaCa())
-                .thoiGianVaoCa(requestDTO.getThoiGianVaoCa())
-                .thoiGianKetCa(requestDTO.getThoiGianKetCa())
-                .tienDauCa(requestDTO.getTienDauCa())
-                .tienKetCa(requestDTO.getTienKetCa())
-                .trangThai(requestDTO.getTrangThai())
-                .ghiChu(requestDTO.getGhiChu())
-                .nhanVien(nhanVien)
+                .tenCa(requestDTO.getTenCa())
+                .gioBatDau(requestDTO.getGioBatDau())
+                .gioKetThuc(requestDTO.getGioKetThuc())
                 .build();
-
-        CaLamViec saved = caLamViecRepository.save(caLamViec);
-        return convertToResponseDTO(saved);
+                
+        return convertToResponseDTO(caLamViecRepository.save(caLamViec));
     }
 
+    @Override
     public CaLamViecResponseDTO updateCaLamViec(String maCa, CaLamViecUpdateRequestDTO requestDTO) {
-        CaLamViec caLamViec = caLamViecRepository.findByMaCaIgnoreCase(maCa)
+        CaLamViec ca = caLamViecRepository.findByMaCaIgnoreCase(maCa)
                 .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy Ca Làm Việc với mã: " + maCa));
-
-        NhanVien nhanVien = nhanVienRepository.findByMaNVIgnoreCase(requestDTO.getMaNV())
-                .orElseThrow(() -> new ResourceNotFoundException("Nhân viên không tồn tại"));
-
-        caLamViec.setThoiGianVaoCa(requestDTO.getThoiGianVaoCa());
-        caLamViec.setThoiGianKetCa(requestDTO.getThoiGianKetCa());
-        caLamViec.setTienDauCa(requestDTO.getTienDauCa());
-        caLamViec.setTienKetCa(requestDTO.getTienKetCa());
-        caLamViec.setTrangThai(requestDTO.getTrangThai());
-        caLamViec.setGhiChu(requestDTO.getGhiChu());
-        caLamViec.setNhanVien(nhanVien);
-
-        CaLamViec updated = caLamViecRepository.save(caLamViec);
-        return convertToResponseDTO(updated);
+                
+        ca.setTenCa(requestDTO.getTenCa());
+        ca.setGioBatDau(requestDTO.getGioBatDau());
+        ca.setGioKetThuc(requestDTO.getGioKetThuc());
+        
+        return convertToResponseDTO(caLamViecRepository.save(ca));
     }
 
+    @Override
     public void deleteCaLamViec(String maCa) {
-        CaLamViec caLamViec = caLamViecRepository.findByMaCaIgnoreCase(maCa).orElseThrow(() -> new ResourceNotFoundException("Khong tim thay"));
-        caLamViecRepository.delete(caLamViec);
+        CaLamViec ca = caLamViecRepository.findByMaCaIgnoreCase(maCa)
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy Ca Làm Việc với mã: " + maCa));
+        caLamViecRepository.delete(ca);
     }
 
     private CaLamViecResponseDTO convertToResponseDTO(CaLamViec caLamViec) {
         return CaLamViecResponseDTO.builder()
+                .id(caLamViec.getId())
                 .maCa(caLamViec.getMaCa())
-                .thoiGianVaoCa(caLamViec.getThoiGianVaoCa())
-                .thoiGianKetCa(caLamViec.getThoiGianKetCa())
-                .tienDauCa(caLamViec.getTienDauCa())
-                .tienKetCa(caLamViec.getTienKetCa())
-                .trangThai(caLamViec.getTrangThai())
-                .ghiChu(caLamViec.getGhiChu())
-                .maNV(caLamViec.getNhanVien() != null ? caLamViec.getNhanVien().getMaNV() : null)
-                .hoTenNV(caLamViec.getNhanVien() != null ? caLamViec.getNhanVien().getHoTen() : null)
+                .tenCa(caLamViec.getTenCa())
+                .gioBatDau(caLamViec.getGioBatDau())
+                .gioKetThuc(caLamViec.getGioKetThuc())
                 .build();
     }
 }

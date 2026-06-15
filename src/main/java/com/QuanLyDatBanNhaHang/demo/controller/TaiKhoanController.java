@@ -6,11 +6,11 @@ import com.QuanLyDatBanNhaHang.demo.dto.response.TaiKhoanResponseDTO;
 import com.QuanLyDatBanNhaHang.demo.service.TaiKhoanService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/tai-khoan")
@@ -20,13 +20,13 @@ public class TaiKhoanController {
     private final TaiKhoanService taiKhoanService;
 
     @GetMapping
-    public ResponseEntity<List<TaiKhoanResponseDTO>> getAllTaiKhoan() {
-        return ResponseEntity.ok(taiKhoanService.getAllTaiKhoan());
+    public ResponseEntity<Page<TaiKhoanResponseDTO>> getAllTaiKhoan(Pageable pageable) {
+        return ResponseEntity.ok(taiKhoanService.getAllTaiKhoan(pageable));
     }
 
     @GetMapping("/{username}")
     public ResponseEntity<TaiKhoanResponseDTO> getTaiKhoanById(@PathVariable String username) {
-        return ResponseEntity.ok(taiKhoanService.getTaiKhoanById(username));
+        return ResponseEntity.ok(taiKhoanService.getTaiKhoanByUsername(username));
     }
 
     @PostMapping

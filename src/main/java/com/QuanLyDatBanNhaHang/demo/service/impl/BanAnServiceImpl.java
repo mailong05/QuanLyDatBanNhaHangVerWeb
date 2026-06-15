@@ -1,20 +1,19 @@
 package com.QuanLyDatBanNhaHang.demo.service.impl;
 
-import com.QuanLyDatBanNhaHang.demo.service.BanAnService;
-
 import com.QuanLyDatBanNhaHang.demo.dto.request.BanAnCreateRequestDTO;
 import com.QuanLyDatBanNhaHang.demo.dto.request.BanAnUpdateRequestDTO;
 import com.QuanLyDatBanNhaHang.demo.dto.response.BanAnResponseDTO;
 import com.QuanLyDatBanNhaHang.demo.entity.BanAn;
 import com.QuanLyDatBanNhaHang.demo.entity.KhuVuc;
+import com.QuanLyDatBanNhaHang.demo.exception.DuplicateResourceException;
 import com.QuanLyDatBanNhaHang.demo.exception.ResourceNotFoundException;
 import com.QuanLyDatBanNhaHang.demo.repository.BanAnRepository;
 import com.QuanLyDatBanNhaHang.demo.repository.KhuVucRepository;
+import com.QuanLyDatBanNhaHang.demo.service.BanAnService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -23,64 +22,76 @@ public class BanAnServiceImpl implements BanAnService {
     private final BanAnRepository banAnRepository;
     private final KhuVucRepository khuVucRepository;
 
-    public List<BanAnResponseDTO> getAllBanAn() {
-        List<BanAn> banAns = banAnRepository.findAllWithRelations();
-        return banAns.stream()
-                .map(this::convertToResponseDTO)
-                .collect(Collectors.toList());
+    @Override
+    public Page<BanAnResponseDTO> getAllBanAn(Pageable pageable) {
+        return banAnRepository.findAllWithRelations(pageable).map(this::convertToResponseDTO);
     }
 
-    public BanAnResponseDTO getBanAnById(String maBan) {
-        BanAn banAn = banAnRepository.findByMaBanIgnoreCase(maBan)
-                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy Bàn Ăn với mã: " + maBan));
-        return convertToResponseDTO(banAn);
+    @Override
+    public BanAnResponseDTO getBanAnByMa(String maBan) {
+        BanAn ba = banAnRepository.findByMaBanIgnoreCaseWithKhuVuc(maBan)
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy Bàn ăn với mã: " + maBan));
+        return convertToResponseDTO(ba);
     }
 
+    @Override
     public BanAnResponseDTO createBanAn(BanAnCreateRequestDTO requestDTO) {
-        KhuVuc khuVuc = khuVucRepository.findByMaKhuVucIgnoreCase(requestDTO.getMaKhuVuc())
-                .orElseThrow(() -> new ResourceNotFoundException("Khu vực không tồn tại"));
+        if (banAnRepository.findByMaBanIgnoreCase(requestDTO.getMaBan()).isPresent()) {
+            throw new DuplicateResourceException("Mã bàn đã tồn tại");
+        }
 
-        BanAn banAn = BanAn.builder()
+        KhuVuc kv = null;
+        if (requestDTO.getMaKhuVuc() != null && !requestDTO.getMaKhuVuc().isBlank()) {
+            kv = khuVucRepository.findByMaKhuVucIgnoreCase(requestDTO.getMaKhuVuc())
+                    .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy Khu vực: " + requestDTO.getMaKhuVuc()));
+        }
+
+        BanAn ba = BanAn.builder()
                 .maBan(requestDTO.getMaBan())
                 .soGhe(requestDTO.getSoGhe())
                 .viTri(requestDTO.getViTri())
                 .trangThai(requestDTO.getTrangThai())
-                .khuVuc(khuVuc)
+                .khuVuc(kv)
                 .build();
-
-        BanAn saved = banAnRepository.save(banAn);
-        return convertToResponseDTO(saved);
+        
+        return convertToResponseDTO(banAnRepository.save(ba));
     }
 
+    @Override
     public BanAnResponseDTO updateBanAn(String maBan, BanAnUpdateRequestDTO requestDTO) {
-        BanAn banAn = banAnRepository.findByMaBanIgnoreCase(maBan)
-                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy Bàn Ăn với mã: " + maBan));
+        BanAn ba = banAnRepository.findByMaBanIgnoreCaseWithKhuVuc(maBan)
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy Bàn ăn với mã: " + maBan));
 
-        KhuVuc khuVuc = khuVucRepository.findByMaKhuVucIgnoreCase(requestDTO.getMaKhuVuc())
-                .orElseThrow(() -> new ResourceNotFoundException("Khu vực không tồn tại"));
+        KhuVuc kv = null;
+        if (requestDTO.getMaKhuVuc() != null && !requestDTO.getMaKhuVuc().isBlank()) {
+            kv = khuVucRepository.findByMaKhuVucIgnoreCase(requestDTO.getMaKhuVuc())
+                    .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy Khu vực: " + requestDTO.getMaKhuVuc()));
+        }
 
-        banAn.setSoGhe(requestDTO.getSoGhe());
-        banAn.setViTri(requestDTO.getViTri());
-        banAn.setTrangThai(requestDTO.getTrangThai());
-        banAn.setKhuVuc(khuVuc);
+        ba.setSoGhe(requestDTO.getSoGhe());
+        ba.setViTri(requestDTO.getViTri());
+        ba.setTrangThai(requestDTO.getTrangThai());
+        ba.setKhuVuc(kv);
 
-        BanAn updated = banAnRepository.save(banAn);
-        return convertToResponseDTO(updated);
+        return convertToResponseDTO(banAnRepository.save(ba));
     }
 
+    @Override
     public void deleteBanAn(String maBan) {
-        BanAn banAn = banAnRepository.findByMaBanIgnoreCase(maBan).orElseThrow(() -> new ResourceNotFoundException("Khong tim thay"));
-        banAnRepository.delete(banAn);
+        BanAn ba = banAnRepository.findByMaBanIgnoreCase(maBan)
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy Bàn ăn với mã: " + maBan));
+        banAnRepository.delete(ba);
     }
 
-    private BanAnResponseDTO convertToResponseDTO(BanAn banAn) {
+    private BanAnResponseDTO convertToResponseDTO(BanAn ba) {
         return BanAnResponseDTO.builder()
-                .maBan(banAn.getMaBan())
-                .soGhe(banAn.getSoGhe())
-                .viTri(banAn.getViTri())
-                .trangThai(banAn.getTrangThai())
-                .maKhuVuc(banAn.getKhuVuc() != null ? banAn.getKhuVuc().getMaKhuVuc() : null)
-                .tenKhuVuc(banAn.getKhuVuc() != null ? banAn.getKhuVuc().getTenKhuVuc() : null)
+                .id(ba.getId())
+                .maBan(ba.getMaBan())
+                .soGhe(ba.getSoGhe())
+                .viTri(ba.getViTri())
+                .trangThai(ba.getTrangThai())
+                .maKhuVuc(ba.getKhuVuc() != null ? ba.getKhuVuc().getMaKhuVuc() : null)
+                .tenKhuVuc(ba.getKhuVuc() != null ? ba.getKhuVuc().getTenKhuVuc() : null)
                 .build();
     }
 }

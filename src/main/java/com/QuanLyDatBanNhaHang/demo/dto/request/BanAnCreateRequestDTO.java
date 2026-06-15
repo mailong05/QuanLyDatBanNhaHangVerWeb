@@ -1,10 +1,9 @@
 package com.QuanLyDatBanNhaHang.demo.dto.request;
 
-import com.QuanLyDatBanNhaHang.demo.enums.*;
-import jakarta.validation.constraints.Pattern;
-
+import com.QuanLyDatBanNhaHang.demo.enums.TrangThaiBanAn;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -22,15 +21,11 @@ public class BanAnCreateRequestDTO {
     @Pattern(regexp = "^[a-zA-Z0-9_]+$", message = "Mã không hợp lệ")
     private String maBan;
 
-    @NotNull(message = "Số ghế không được để trống")
     private Integer soGhe;
-
     private String viTri;
 
     @NotNull(message = "Trạng thái không được để trống")
     private TrangThaiBanAn trangThai;
 
-    @NotBlank(message = "Mã khu vực không được để trống")
-    @Pattern(regexp = "^[a-zA-Z0-9_]+$", message = "Mã không hợp lệ")
     private String maKhuVuc;
 }

@@ -1,18 +1,17 @@
 package com.QuanLyDatBanNhaHang.demo.service.impl;
 
-import com.QuanLyDatBanNhaHang.demo.service.ThueService;
-
 import com.QuanLyDatBanNhaHang.demo.dto.request.ThueCreateRequestDTO;
 import com.QuanLyDatBanNhaHang.demo.dto.request.ThueUpdateRequestDTO;
 import com.QuanLyDatBanNhaHang.demo.dto.response.ThueResponseDTO;
 import com.QuanLyDatBanNhaHang.demo.entity.Thue;
-import com.QuanLyDatBanNhaHang.demo.repository.ThueRepository;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-
-import java.util.List;
-import java.util.stream.Collectors;
+import com.QuanLyDatBanNhaHang.demo.exception.DuplicateResourceException;
 import com.QuanLyDatBanNhaHang.demo.exception.ResourceNotFoundException;
+import com.QuanLyDatBanNhaHang.demo.repository.ThueRepository;
+import com.QuanLyDatBanNhaHang.demo.service.ThueService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
@@ -20,53 +19,60 @@ public class ThueServiceImpl implements ThueService {
 
     private final ThueRepository thueRepository;
 
-    public List<ThueResponseDTO> getAllThue() {
-        return thueRepository.findAll().stream()
-                .map(this::convertToResponseDTO)
-                .collect(Collectors.toList());
+    @Override
+    public Page<ThueResponseDTO> getAllThue(Pageable pageable) {
+        return thueRepository.findAll(pageable).map(this::convertToResponseDTO);
     }
 
-    public ThueResponseDTO getThueById(String maThue) {
-        Thue thue = thueRepository.findByMaThueIgnoreCase(maThue)
+    @Override
+    public ThueResponseDTO getThueByMa(String maThue) {
+        Thue t = thueRepository.findByMaThueIgnoreCase(maThue)
                 .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy Thuế với mã: " + maThue));
-        return convertToResponseDTO(thue);
+        return convertToResponseDTO(t);
     }
 
+    @Override
     public ThueResponseDTO createThue(ThueCreateRequestDTO requestDTO) {
-        Thue thue = Thue.builder()
+        if (thueRepository.findByMaThueIgnoreCase(requestDTO.getMaThue()).isPresent()) {
+            throw new DuplicateResourceException("Mã thuế đã tồn tại");
+        }
+        
+        Thue t = Thue.builder()
                 .maThue(requestDTO.getMaThue())
                 .tenThue(requestDTO.getTenThue())
                 .thueSuat(requestDTO.getThueSuat())
                 .trangThai(requestDTO.getTrangThai())
                 .build();
-
-        Thue saved = thueRepository.save(thue);
-        return convertToResponseDTO(saved);
+                
+        return convertToResponseDTO(thueRepository.save(t));
     }
 
+    @Override
     public ThueResponseDTO updateThue(String maThue, ThueUpdateRequestDTO requestDTO) {
-        Thue thue = thueRepository.findByMaThueIgnoreCase(maThue)
+        Thue t = thueRepository.findByMaThueIgnoreCase(maThue)
                 .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy Thuế với mã: " + maThue));
+                
+        t.setTenThue(requestDTO.getTenThue());
+        t.setThueSuat(requestDTO.getThueSuat());
+        t.setTrangThai(requestDTO.getTrangThai());
 
-        thue.setTenThue(requestDTO.getTenThue());
-        thue.setThueSuat(requestDTO.getThueSuat());
-        thue.setTrangThai(requestDTO.getTrangThai());
-
-        Thue updated = thueRepository.save(thue);
-        return convertToResponseDTO(updated);
+        return convertToResponseDTO(thueRepository.save(t));
     }
 
+    @Override
     public void deleteThue(String maThue) {
-        Thue thue = thueRepository.findByMaThueIgnoreCase(maThue).orElseThrow(() -> new ResourceNotFoundException("Khong tim thay"));
-        thueRepository.delete(thue);
+        Thue t = thueRepository.findByMaThueIgnoreCase(maThue)
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy Thuế với mã: " + maThue));
+        thueRepository.delete(t);
     }
 
-    private ThueResponseDTO convertToResponseDTO(Thue thue) {
+    private ThueResponseDTO convertToResponseDTO(Thue t) {
         return ThueResponseDTO.builder()
-                .maThue(thue.getMaThue())
-                .tenThue(thue.getTenThue())
-                .thueSuat(thue.getThueSuat())
-                .trangThai(thue.getTrangThai())
+                .id(t.getId())
+                .maThue(t.getMaThue())
+                .tenThue(t.getTenThue())
+                .thueSuat(t.getThueSuat())
+                .trangThai(t.getTrangThai())
                 .build();
     }
 }

@@ -1,8 +1,6 @@
 package com.QuanLyDatBanNhaHang.demo.dto.request;
 
-import com.QuanLyDatBanNhaHang.demo.enums.*;
-import jakarta.validation.constraints.Pattern;
-
+import com.QuanLyDatBanNhaHang.demo.enums.LoaiThanhVienKhachHang;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -24,8 +22,10 @@ public class KhachHangUpdateRequestDTO {
     @NotBlank(message = "Số điện thoại không được để trống")
     private String sdt;
 
-    private Integer diemTichLuy;
-
     @NotNull(message = "Loại thành viên không được để trống")
     private LoaiThanhVienKhachHang loaiThanhVien;
+
+    private Integer diemTichLuy;
+
+    private String username; // Optional
 }

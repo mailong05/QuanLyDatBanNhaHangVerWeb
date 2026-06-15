@@ -1,75 +1,107 @@
 package com.QuanLyDatBanNhaHang.demo.service.impl;
 
-import com.QuanLyDatBanNhaHang.demo.service.KhachHangService;
-
 import com.QuanLyDatBanNhaHang.demo.dto.request.KhachHangCreateRequestDTO;
 import com.QuanLyDatBanNhaHang.demo.dto.request.KhachHangUpdateRequestDTO;
 import com.QuanLyDatBanNhaHang.demo.dto.response.KhachHangResponseDTO;
 import com.QuanLyDatBanNhaHang.demo.entity.KhachHang;
-import com.QuanLyDatBanNhaHang.demo.repository.KhachHangRepository;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-
-import java.util.List;
-import java.util.stream.Collectors;
+import com.QuanLyDatBanNhaHang.demo.entity.TaiKhoan;
+import com.QuanLyDatBanNhaHang.demo.exception.DuplicateResourceException;
 import com.QuanLyDatBanNhaHang.demo.exception.ResourceNotFoundException;
+import com.QuanLyDatBanNhaHang.demo.repository.KhachHangRepository;
+import com.QuanLyDatBanNhaHang.demo.repository.TaiKhoanRepository;
+import com.QuanLyDatBanNhaHang.demo.service.KhachHangService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
 public class KhachHangServiceImpl implements KhachHangService {
 
     private final KhachHangRepository khachHangRepository;
+    private final TaiKhoanRepository taiKhoanRepository;
 
-    public List<KhachHangResponseDTO> getAllKhachHang() {
-        return khachHangRepository.findAll().stream()
-                .map(this::convertToResponseDTO)
-                .collect(Collectors.toList());
+    @Override
+    public Page<KhachHangResponseDTO> getAllKhachHang(Pageable pageable) {
+        return khachHangRepository.findAllWithRelations(pageable).map(this::convertToResponseDTO);
     }
 
-    public KhachHangResponseDTO getKhachHangById(String maKH) {
-        KhachHang khachHang = khachHangRepository.findByMaKHIgnoreCase(maKH)
-                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy Khách Hàng với mã: " + maKH));
-        return convertToResponseDTO(khachHang);
+    @Override
+    public Page<KhachHangResponseDTO> searchKhachHang(String keyword, Pageable pageable) {
+        return khachHangRepository.searchByHoTenOrSdt(keyword, pageable).map(this::convertToResponseDTO);
     }
 
+    @Override
+    public KhachHangResponseDTO getKhachHangByMa(String maKH) {
+        KhachHang kh = khachHangRepository.findByMaKHIgnoreCaseWithAuth(maKH)
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy Khách hàng với mã: " + maKH));
+        return convertToResponseDTO(kh);
+    }
+
+    @Override
     public KhachHangResponseDTO createKhachHang(KhachHangCreateRequestDTO requestDTO) {
-        KhachHang khachHang = KhachHang.builder()
+        if (khachHangRepository.findByMaKHIgnoreCase(requestDTO.getMaKH()).isPresent()) {
+            throw new DuplicateResourceException("Mã khách hàng đã tồn tại");
+        }
+
+        TaiKhoan tk = null;
+        if (requestDTO.getUsername() != null && !requestDTO.getUsername().isBlank()) {
+            tk = taiKhoanRepository.findByUsernameIgnoreCase(requestDTO.getUsername())
+                    .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy Tài khoản: " + requestDTO.getUsername()));
+        }
+
+        KhachHang kh = KhachHang.builder()
                 .maKH(requestDTO.getMaKH())
                 .hoTen(requestDTO.getHoTen())
                 .sdt(requestDTO.getSdt())
-                .diemTichLuy(requestDTO.getDiemTichLuy())
                 .loaiThanhVien(requestDTO.getLoaiThanhVien())
+                .diemTichLuy(0) // Default when creating
+                .taiKhoan(tk)
                 .build();
-
-        KhachHang saved = khachHangRepository.save(khachHang);
-        return convertToResponseDTO(saved);
+        
+        return convertToResponseDTO(khachHangRepository.save(kh));
     }
 
+    @Override
     public KhachHangResponseDTO updateKhachHang(String maKH, KhachHangUpdateRequestDTO requestDTO) {
-        KhachHang khachHang = khachHangRepository.findByMaKHIgnoreCase(maKH)
-                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy Khách Hàng với mã: " + maKH));
+        KhachHang kh = khachHangRepository.findByMaKHIgnoreCaseWithAuth(maKH)
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy Khách hàng với mã: " + maKH));
 
-        khachHang.setHoTen(requestDTO.getHoTen());
-        khachHang.setSdt(requestDTO.getSdt());
-        khachHang.setDiemTichLuy(requestDTO.getDiemTichLuy());
-        khachHang.setLoaiThanhVien(requestDTO.getLoaiThanhVien());
+        TaiKhoan tk = null;
+        if (requestDTO.getUsername() != null && !requestDTO.getUsername().isBlank()) {
+            tk = taiKhoanRepository.findByUsernameIgnoreCase(requestDTO.getUsername())
+                    .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy Tài khoản: " + requestDTO.getUsername()));
+        }
 
-        KhachHang updated = khachHangRepository.save(khachHang);
-        return convertToResponseDTO(updated);
+        kh.setHoTen(requestDTO.getHoTen());
+        kh.setSdt(requestDTO.getSdt());
+        kh.setLoaiThanhVien(requestDTO.getLoaiThanhVien());
+        if (requestDTO.getDiemTichLuy() != null) {
+            kh.setDiemTichLuy(requestDTO.getDiemTichLuy());
+        }
+        kh.setTaiKhoan(tk);
+
+        return convertToResponseDTO(khachHangRepository.save(kh));
     }
 
+    @Override
     public void deleteKhachHang(String maKH) {
-        KhachHang khachHang = khachHangRepository.findByMaKHIgnoreCase(maKH).orElseThrow(() -> new ResourceNotFoundException("Khong tim thay"));
-        khachHangRepository.delete(khachHang);
+        KhachHang kh = khachHangRepository.findByMaKHIgnoreCase(maKH)
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy Khách hàng với mã: " + maKH));
+        khachHangRepository.delete(kh);
     }
 
-    private KhachHangResponseDTO convertToResponseDTO(KhachHang khachHang) {
+    private KhachHangResponseDTO convertToResponseDTO(KhachHang kh) {
         return KhachHangResponseDTO.builder()
-                .maKH(khachHang.getMaKH())
-                .hoTen(khachHang.getHoTen())
-                .sdt(khachHang.getSdt())
-                .diemTichLuy(khachHang.getDiemTichLuy())
-                .loaiThanhVien(khachHang.getLoaiThanhVien())
+                .id(kh.getId())
+                .maKH(kh.getMaKH())
+                .hoTen(kh.getHoTen())
+                .sdt(kh.getSdt())
+                .diemTichLuy(kh.getDiemTichLuy())
+                .loaiThanhVien(kh.getLoaiThanhVien())
+                .username(kh.getTaiKhoan() != null ? kh.getTaiKhoan().getUsername() : null)
+                .quyenHan(kh.getTaiKhoan() != null ? kh.getTaiKhoan().getQuyenHan().name() : null)
                 .build();
     }
 }

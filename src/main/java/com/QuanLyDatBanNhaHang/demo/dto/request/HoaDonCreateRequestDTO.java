@@ -1,18 +1,18 @@
 package com.QuanLyDatBanNhaHang.demo.dto.request;
 
-import com.QuanLyDatBanNhaHang.demo.enums.*;
-import jakarta.validation.constraints.Pattern;
-
+import com.QuanLyDatBanNhaHang.demo.enums.PhuongThucThanhToanHoaDon;
+import com.QuanLyDatBanNhaHang.demo.enums.TrangThaiThanhToanHoaDon;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.time.LocalDateTime;
-import java.time.LocalTime;
+import java.util.List;
 
 @Getter
 @Setter
@@ -20,7 +20,6 @@ import java.time.LocalTime;
 @AllArgsConstructor
 @Builder
 public class HoaDonCreateRequestDTO {
-    
     @NotBlank(message = "Mã hóa đơn không được để trống")
     @Pattern(regexp = "^[a-zA-Z0-9_]+$", message = "Mã không hợp lệ")
     private String maHD;
@@ -29,27 +28,26 @@ public class HoaDonCreateRequestDTO {
     private Double tienThue;
     private Double tyLePhiDV;
     private Double tienPhiDV;
-    private LocalDateTime ngayTao;
-    private LocalTime gioVao;
-    private LocalTime gioRa;
     private Double tongTienGoc;
     private Double tienGiamGia;
     private Double tongThanhToan;
+    
     private PhuongThucThanhToanHoaDon phuongThucTT;
-
+    
     @NotNull(message = "Trạng thái thanh toán không được để trống")
     private TrangThaiThanhToanHoaDon trangThaiThanhToan;
 
     @NotBlank(message = "Mã phiếu đặt không được để trống")
-    @Pattern(regexp = "^[a-zA-Z0-9_]+$", message = "Mã không hợp lệ")
     private String maPhieuDat;
 
     @NotBlank(message = "Mã nhân viên không được để trống")
     private String maNV;
 
-    @Pattern(regexp = "^[a-zA-Z0-9_]+$", message = "Mã không hợp lệ")
     private String maKM;
 
     @NotBlank(message = "Mã thuế không được để trống")
     private String maThue;
+
+    @Valid
+    private List<ChiTietHoaDonCreateRequestDTO> chiTiets;
 }

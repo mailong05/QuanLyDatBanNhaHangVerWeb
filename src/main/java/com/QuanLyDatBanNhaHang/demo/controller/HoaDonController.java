@@ -6,11 +6,11 @@ import com.QuanLyDatBanNhaHang.demo.dto.response.HoaDonResponseDTO;
 import com.QuanLyDatBanNhaHang.demo.service.HoaDonService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/hoa-don")
@@ -20,13 +20,13 @@ public class HoaDonController {
     private final HoaDonService hoaDonService;
 
     @GetMapping
-    public ResponseEntity<List<HoaDonResponseDTO>> getAllHoaDon() {
-        return ResponseEntity.ok(hoaDonService.getAllHoaDon());
+    public ResponseEntity<Page<HoaDonResponseDTO>> getAllHoaDon(Pageable pageable) {
+        return ResponseEntity.ok(hoaDonService.getAllHoaDon(pageable));
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<HoaDonResponseDTO> getHoaDonById(@PathVariable String id) {
-        return ResponseEntity.ok(hoaDonService.getHoaDonById(id));
+    @GetMapping("/{maHD}")
+    public ResponseEntity<HoaDonResponseDTO> getHoaDonById(@PathVariable String maHD) {
+        return ResponseEntity.ok(hoaDonService.getHoaDonByMa(maHD));
     }
 
     @PostMapping
@@ -34,14 +34,14 @@ public class HoaDonController {
         return new ResponseEntity<>(hoaDonService.createHoaDon(requestDTO), HttpStatus.CREATED);
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<HoaDonResponseDTO> updateHoaDon(@PathVariable String id, @Valid @RequestBody HoaDonUpdateRequestDTO requestDTO) {
-        return ResponseEntity.ok(hoaDonService.updateHoaDon(id, requestDTO));
+    @PutMapping("/{maHD}")
+    public ResponseEntity<HoaDonResponseDTO> updateHoaDon(@PathVariable String maHD, @Valid @RequestBody HoaDonUpdateRequestDTO requestDTO) {
+        return ResponseEntity.ok(hoaDonService.updateHoaDon(maHD, requestDTO));
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteHoaDon(@PathVariable String id) {
-        hoaDonService.deleteHoaDon(id);
+    @DeleteMapping("/{maHD}")
+    public ResponseEntity<Void> deleteHoaDon(@PathVariable String maHD) {
+        hoaDonService.deleteHoaDon(maHD);
         return ResponseEntity.noContent().build();
     }
 }

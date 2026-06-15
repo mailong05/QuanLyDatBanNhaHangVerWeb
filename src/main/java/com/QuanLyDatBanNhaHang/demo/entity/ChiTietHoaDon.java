@@ -23,12 +23,6 @@ public class ChiTietHoaDon extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "maHD", length = 20)
-    private String maHD;
-
-    @Column(name = "maMon", length = 20)
-    private String maMon;
-
     @Column(name = "soLuong", nullable = false)
     private Integer soLuong;
 
@@ -42,11 +36,11 @@ public class ChiTietHoaDon extends BaseEntity {
     private Double thanhTien;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "maHD", insertable = false, updatable = false)
+    @JoinColumn(name = "maHD", nullable = false)
     private HoaDon hoaDon;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "maMon", insertable = false, updatable = false)
+    @JoinColumn(name = "maMon", nullable = false)
     private MonAn monAn;
 }
 

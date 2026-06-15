@@ -1,7 +1,6 @@
 package com.QuanLyDatBanNhaHang.demo.dto.response;
 
-import com.QuanLyDatBanNhaHang.demo.enums.*;
-
+import com.QuanLyDatBanNhaHang.demo.enums.LoaiThanhVienKhachHang;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -14,10 +13,13 @@ import lombok.Setter;
 @AllArgsConstructor
 @Builder
 public class KhachHangResponseDTO {
+    private Long id;
     private String maKH;
     private String hoTen;
     private String sdt;
     private Integer diemTichLuy;
     private LoaiThanhVienKhachHang loaiThanhVien;
-
+    
+    private String username;
+    private String quyenHan; // Derived from TaiKhoan
 }
