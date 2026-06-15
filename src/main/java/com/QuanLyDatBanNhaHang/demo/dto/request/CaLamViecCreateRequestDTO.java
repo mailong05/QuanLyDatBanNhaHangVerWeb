@@ -1,5 +1,6 @@
 package com.QuanLyDatBanNhaHang.demo.dto.request;
 
+import com.QuanLyDatBanNhaHang.demo.enums.TrangThaiCaLamViec;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
@@ -28,4 +29,7 @@ public class CaLamViecCreateRequestDTO {
 
     @NotNull(message = "Giờ kết thúc không được để trống")
     private LocalTime gioKetThuc;
+
+    @NotNull(message = "Trạng thái ca không được để trống")
+    private TrangThaiCaLamViec trangThai;
 }

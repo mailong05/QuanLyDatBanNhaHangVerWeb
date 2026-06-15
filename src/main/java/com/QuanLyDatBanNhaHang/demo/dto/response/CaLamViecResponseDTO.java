@@ -1,5 +1,6 @@
 package com.QuanLyDatBanNhaHang.demo.dto.response;
 
+import com.QuanLyDatBanNhaHang.demo.enums.TrangThaiCaLamViec;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -19,4 +20,5 @@ public class CaLamViecResponseDTO {
     private String tenCa;
     private LocalTime gioBatDau;
     private LocalTime gioKetThuc;
+    private TrangThaiCaLamViec trangThai;
 }

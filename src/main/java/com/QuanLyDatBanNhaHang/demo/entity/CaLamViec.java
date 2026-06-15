@@ -39,10 +39,16 @@ public class CaLamViec extends BaseEntity {
     @Column(name = "gioKetThuc", nullable = false)
     private java.time.LocalTime gioKetThuc;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "trangThai", nullable = false, length = 50)
+    private TrangThaiCaLamViec trangThai;
+
     @OneToMany(mappedBy = "caLamViec", cascade = CascadeType.ALL, orphanRemoval = true)
     private java.util.List<PhanCong> phanCongs;
 
     @OneToMany(mappedBy = "caLamViec", cascade = CascadeType.ALL, orphanRemoval = true)
     private java.util.List<GiaoCa> giaoCas;
+
+
 }
 

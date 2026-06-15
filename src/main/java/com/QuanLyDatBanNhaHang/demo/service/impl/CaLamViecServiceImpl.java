@@ -40,6 +40,7 @@ public class CaLamViecServiceImpl implements CaLamViecService {
                 .tenCa(requestDTO.getTenCa())
                 .gioBatDau(requestDTO.getGioBatDau())
                 .gioKetThuc(requestDTO.getGioKetThuc())
+                .trangThai(requestDTO.getTrangThai())
                 .build();
                 
         return convertToResponseDTO(caLamViecRepository.save(caLamViec));
