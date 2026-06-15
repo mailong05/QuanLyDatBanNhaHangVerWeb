@@ -1,90 +1,72 @@
 package com.QuanLyDatBanNhaHang.demo.service.impl;
 
-import com.QuanLyDatBanNhaHang.demo.dto.request.MonAnRequestDTO;
+import com.QuanLyDatBanNhaHang.demo.service.MonAnService;
+
+import com.QuanLyDatBanNhaHang.demo.dto.request.MonAnCreateRequestDTO;
+import com.QuanLyDatBanNhaHang.demo.dto.request.MonAnUpdateRequestDTO;
 import com.QuanLyDatBanNhaHang.demo.dto.response.MonAnResponseDTO;
 import com.QuanLyDatBanNhaHang.demo.entity.MonAn;
 import com.QuanLyDatBanNhaHang.demo.repository.MonAnRepository;
-import com.QuanLyDatBanNhaHang.demo.service.MonAnService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
+import com.QuanLyDatBanNhaHang.demo.exception.ResourceNotFoundException;
 
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
 public class MonAnServiceImpl implements MonAnService {
 
     private final MonAnRepository monAnRepository;
 
-    @Override
-    public List<MonAnResponseDTO> getAll() {
-        return monAnRepository.findAllWithRelations().stream()
-                .map(this::convertToDTO)
+    public List<MonAnResponseDTO> getAllMonAn() {
+        return monAnRepository.findAll().stream()
+                .map(this::convertToResponseDTO)
                 .collect(Collectors.toList());
     }
 
-    @Override
-    public Optional<MonAnResponseDTO> getById(String maMon) {
-        return monAnRepository.findByIdWithRelations(maMon)
-                .map(this::convertToDTO);
+    public MonAnResponseDTO getMonAnById(String maMon) {
+        MonAn monAn = monAnRepository.findByMaMonIgnoreCase(maMon)
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy Món Ăn với mã: " + maMon));
+        return convertToResponseDTO(monAn);
     }
 
-    @Override
-    @Transactional
-    public MonAnResponseDTO create(MonAnRequestDTO dto) {
+    public MonAnResponseDTO createMonAn(MonAnCreateRequestDTO requestDTO) {
         MonAn monAn = MonAn.builder()
-                .maMon(dto.getMaMon())
-                .tenMon(dto.getTenMon())
-                .donGia(dto.getDonGia())
-                .donViTinh(dto.getDonViTinh())
-                .tenLoai(dto.getTenLoai())
-                .trangThai(dto.getTrangThai())
-                .urlHinhAnh(dto.getUrlHinhAnh())
+                .maMon(requestDTO.getMaMon())
+                .tenMon(requestDTO.getTenMon())
+                .donGia(requestDTO.getDonGia())
+                .donViTinh(requestDTO.getDonViTinh())
+                .tenLoai(requestDTO.getTenLoai())
+                .trangThai(requestDTO.getTrangThai())
+                .urlHinhAnh(requestDTO.getUrlHinhAnh())
                 .build();
+
         MonAn saved = monAnRepository.save(monAn);
-        return convertToDTO(saved);
+        return convertToResponseDTO(saved);
     }
 
-    @Override
-    @Transactional
-    public Optional<MonAnResponseDTO> update(String maMon, MonAnRequestDTO dto) {
-        return monAnRepository.findById(maMon).map(monAn -> {
-            monAn.setTenMon(dto.getTenMon());
-            monAn.setDonGia(dto.getDonGia());
-            monAn.setDonViTinh(dto.getDonViTinh());
-            monAn.setTenLoai(dto.getTenLoai());
-            monAn.setTrangThai(dto.getTrangThai());
-            monAn.setUrlHinhAnh(dto.getUrlHinhAnh());
-            MonAn updated = monAnRepository.save(monAn);
-            return convertToDTO(updated);
-        });
+    public MonAnResponseDTO updateMonAn(String maMon, MonAnUpdateRequestDTO requestDTO) {
+        MonAn monAn = monAnRepository.findByMaMonIgnoreCase(maMon)
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy Món Ăn với mã: " + maMon));
+
+        monAn.setTenMon(requestDTO.getTenMon());
+        monAn.setDonGia(requestDTO.getDonGia());
+        monAn.setDonViTinh(requestDTO.getDonViTinh());
+        monAn.setTenLoai(requestDTO.getTenLoai());
+        monAn.setTrangThai(requestDTO.getTrangThai());
+        monAn.setUrlHinhAnh(requestDTO.getUrlHinhAnh());
+
+        MonAn updated = monAnRepository.save(monAn);
+        return convertToResponseDTO(updated);
     }
 
-    @Override
-    @Transactional
-    public void delete(String maMon) {
+    public void deleteMonAn(String maMon) {
         monAnRepository.deleteById(maMon);
     }
 
-    @Override
-    public List<MonAnResponseDTO> getByTenLoai(String tenLoai) {
-        return monAnRepository.findByTenLoai(tenLoai).stream()
-                .map(this::convertToDTO)
-                .collect(Collectors.toList());
-    }
-
-    @Override
-    public List<MonAnResponseDTO> getByTrangThai(String trangThai) {
-        return monAnRepository.findByTrangThai(trangThai).stream()
-                .map(this::convertToDTO)
-                .collect(Collectors.toList());
-    }
-
-    private MonAnResponseDTO convertToDTO(MonAn monAn) {
+    private MonAnResponseDTO convertToResponseDTO(MonAn monAn) {
         return MonAnResponseDTO.builder()
                 .maMon(monAn.getMaMon())
                 .tenMon(monAn.getTenMon())
@@ -96,4 +78,3 @@ public class MonAnServiceImpl implements MonAnService {
                 .build();
     }
 }
-

@@ -6,6 +6,10 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
+import org.springframework.data.repository.query.Param;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Page;
 
 @Repository
 public interface HoaDonRepository extends JpaRepository<HoaDon, String> {
@@ -15,4 +19,8 @@ public interface HoaDonRepository extends JpaRepository<HoaDon, String> {
            "LEFT JOIN FETCH h.khuyenMai k " +
            "JOIN FETCH h.thue t")
     List<HoaDon> findAllWithRelations();
+    @Query(value = "SELECT DISTINCT x FROM HoaDon x JOIN FETCH x.phieuDatBan p JOIN FETCH x.nhanVien n LEFT JOIN FETCH x.khuyenMai k JOIN FETCH x.thue t", countQuery = "SELECT count(x) FROM HoaDon x")
+    Page<HoaDon> findAllWithRelations(Pageable pageable);
+    @Query("SELECT DISTINCT x FROM HoaDon x JOIN FETCH x.phieuDatBan p JOIN FETCH x.nhanVien n LEFT JOIN FETCH x.khuyenMai k JOIN FETCH x.thue t WHERE LOWER(x.maHD) = LOWER(:maHD)")
+    Optional<HoaDon> findByMaHDIgnoreCase(@Param("maHD") String maHD);
 }

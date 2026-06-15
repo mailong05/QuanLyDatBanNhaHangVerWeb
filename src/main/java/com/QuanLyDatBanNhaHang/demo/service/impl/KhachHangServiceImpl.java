@@ -1,81 +1,68 @@
 package com.QuanLyDatBanNhaHang.demo.service.impl;
 
-import com.QuanLyDatBanNhaHang.demo.dto.request.KhachHangRequestDTO;
+import com.QuanLyDatBanNhaHang.demo.service.KhachHangService;
+
+import com.QuanLyDatBanNhaHang.demo.dto.request.KhachHangCreateRequestDTO;
+import com.QuanLyDatBanNhaHang.demo.dto.request.KhachHangUpdateRequestDTO;
 import com.QuanLyDatBanNhaHang.demo.dto.response.KhachHangResponseDTO;
 import com.QuanLyDatBanNhaHang.demo.entity.KhachHang;
 import com.QuanLyDatBanNhaHang.demo.repository.KhachHangRepository;
-import com.QuanLyDatBanNhaHang.demo.service.KhachHangService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
+import com.QuanLyDatBanNhaHang.demo.exception.ResourceNotFoundException;
 
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
 public class KhachHangServiceImpl implements KhachHangService {
 
     private final KhachHangRepository khachHangRepository;
 
-    @Override
-    public List<KhachHangResponseDTO> getAll() {
-        return khachHangRepository.findAllWithRelations().stream()
-                .map(this::convertToDTO)
+    public List<KhachHangResponseDTO> getAllKhachHang() {
+        return khachHangRepository.findAll().stream()
+                .map(this::convertToResponseDTO)
                 .collect(Collectors.toList());
     }
 
-    @Override
-    public Optional<KhachHangResponseDTO> getById(String maKH) {
-        return khachHangRepository.findByIdWithRelations(maKH)
-                .map(this::convertToDTO);
+    public KhachHangResponseDTO getKhachHangById(String maKH) {
+        KhachHang khachHang = khachHangRepository.findByMaKHIgnoreCase(maKH)
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy Khách Hàng với mã: " + maKH));
+        return convertToResponseDTO(khachHang);
     }
 
-    @Override
-    @Transactional
-    public KhachHangResponseDTO create(KhachHangRequestDTO dto) {
+    public KhachHangResponseDTO createKhachHang(KhachHangCreateRequestDTO requestDTO) {
         KhachHang khachHang = KhachHang.builder()
-                .maKH(dto.getMaKH())
-                .hoTen(dto.getHoTen())
-                .sdt(dto.getSdt())
-                .diemTichLuy(dto.getDiemTichLuy() != null ? dto.getDiemTichLuy() : 0)
-                .loaiThanhVien(dto.getLoaiThanhVien())
+                .maKH(requestDTO.getMaKH())
+                .hoTen(requestDTO.getHoTen())
+                .sdt(requestDTO.getSdt())
+                .diemTichLuy(requestDTO.getDiemTichLuy())
+                .loaiThanhVien(requestDTO.getLoaiThanhVien())
                 .build();
+
         KhachHang saved = khachHangRepository.save(khachHang);
-        return convertToDTO(saved);
+        return convertToResponseDTO(saved);
     }
 
-    @Override
-    @Transactional
-    public Optional<KhachHangResponseDTO> update(String maKH, KhachHangRequestDTO dto) {
-        return khachHangRepository.findById(maKH).map(khachHang -> {
-            khachHang.setHoTen(dto.getHoTen());
-            khachHang.setSdt(dto.getSdt());
-            if (dto.getDiemTichLuy() != null) {
-                khachHang.setDiemTichLuy(dto.getDiemTichLuy());
-            }
-            khachHang.setLoaiThanhVien(dto.getLoaiThanhVien());
-            KhachHang updated = khachHangRepository.save(khachHang);
-            return convertToDTO(updated);
-        });
+    public KhachHangResponseDTO updateKhachHang(String maKH, KhachHangUpdateRequestDTO requestDTO) {
+        KhachHang khachHang = khachHangRepository.findByMaKHIgnoreCase(maKH)
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy Khách Hàng với mã: " + maKH));
+
+        khachHang.setHoTen(requestDTO.getHoTen());
+        khachHang.setSdt(requestDTO.getSdt());
+        khachHang.setDiemTichLuy(requestDTO.getDiemTichLuy());
+        khachHang.setLoaiThanhVien(requestDTO.getLoaiThanhVien());
+
+        KhachHang updated = khachHangRepository.save(khachHang);
+        return convertToResponseDTO(updated);
     }
 
-    @Override
-    @Transactional
-    public void delete(String maKH) {
+    public void deleteKhachHang(String maKH) {
         khachHangRepository.deleteById(maKH);
     }
 
-    @Override
-    public List<KhachHangResponseDTO> getByLoaiThanhVien(String loaiThanhVien) {
-        return khachHangRepository.findByLoaiThanhVien(loaiThanhVien).stream()
-                .map(this::convertToDTO)
-                .collect(Collectors.toList());
-    }
-
-    private KhachHangResponseDTO convertToDTO(KhachHang khachHang) {
+    private KhachHangResponseDTO convertToResponseDTO(KhachHang khachHang) {
         return KhachHangResponseDTO.builder()
                 .maKH(khachHang.getMaKH())
                 .hoTen(khachHang.getHoTen())
@@ -85,4 +72,3 @@ public class KhachHangServiceImpl implements KhachHangService {
                 .build();
     }
 }
-

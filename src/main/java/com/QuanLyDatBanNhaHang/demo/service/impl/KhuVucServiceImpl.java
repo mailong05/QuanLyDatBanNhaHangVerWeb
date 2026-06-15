@@ -1,71 +1,65 @@
 package com.QuanLyDatBanNhaHang.demo.service.impl;
 
-import com.QuanLyDatBanNhaHang.demo.dto.request.KhuVucRequestDTO;
+import com.QuanLyDatBanNhaHang.demo.service.KhuVucService;
+
+import com.QuanLyDatBanNhaHang.demo.dto.request.KhuVucCreateRequestDTO;
 import com.QuanLyDatBanNhaHang.demo.dto.request.KhuVucUpdateRequestDTO;
 import com.QuanLyDatBanNhaHang.demo.dto.response.KhuVucResponseDTO;
 import com.QuanLyDatBanNhaHang.demo.entity.KhuVuc;
 import com.QuanLyDatBanNhaHang.demo.repository.KhuVucRepository;
-import com.QuanLyDatBanNhaHang.demo.service.KhuVucService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
+import com.QuanLyDatBanNhaHang.demo.exception.ResourceNotFoundException;
 
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
 public class KhuVucServiceImpl implements KhuVucService {
 
     private final KhuVucRepository khuVucRepository;
 
-    @Override
-    public List<KhuVucResponseDTO> getAll() {
-        return khuVucRepository.findAllWithRelations().stream()
-                .map(this::convertToDTO)
+    public List<KhuVucResponseDTO> getAllKhuVuc() {
+        return khuVucRepository.findAll().stream()
+                .map(this::convertToResponseDTO)
                 .collect(Collectors.toList());
     }
 
-    @Override
-    public Optional<KhuVucResponseDTO> getById(String maKhuVuc) {
-        return khuVucRepository.findByIdWithRelations(maKhuVuc)
-                .map(this::convertToDTO);
+    public KhuVucResponseDTO getKhuVucById(String maKhuVuc) {
+        KhuVuc khuVuc = khuVucRepository.findByMaKhuVucIgnoreCase(maKhuVuc)
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy Khu Vực với mã: " + maKhuVuc));
+        return convertToResponseDTO(khuVuc);
     }
 
-    @Override
-    @Transactional
-    public KhuVucResponseDTO create(KhuVucRequestDTO dto) {
+    public KhuVucResponseDTO createKhuVuc(KhuVucCreateRequestDTO requestDTO) {
         KhuVuc khuVuc = KhuVuc.builder()
-                .maKhuVuc(dto.getMaKhuVuc())
-                .tenKhuVuc(dto.getTenKhuVuc())
+                .maKhuVuc(requestDTO.getMaKhuVuc())
+                .tenKhuVuc(requestDTO.getTenKhuVuc())
                 .build();
+
         KhuVuc saved = khuVucRepository.save(khuVuc);
-        return convertToDTO(saved);
+        return convertToResponseDTO(saved);
     }
 
-    @Override
-    @Transactional
-    public Optional<KhuVucResponseDTO> update(String maKhuVuc, KhuVucUpdateRequestDTO dto) {
-        return khuVucRepository.findById(maKhuVuc).map(khuVuc -> {
-            khuVuc.setTenKhuVuc(dto.getTenKhuVuc());
-            KhuVuc updated = khuVucRepository.save(khuVuc);
-            return convertToDTO(updated);
-        });
+    public KhuVucResponseDTO updateKhuVuc(String maKhuVuc, KhuVucUpdateRequestDTO requestDTO) {
+        KhuVuc khuVuc = khuVucRepository.findByMaKhuVucIgnoreCase(maKhuVuc)
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy Khu Vực với mã: " + maKhuVuc));
+
+        khuVuc.setTenKhuVuc(requestDTO.getTenKhuVuc());
+
+        KhuVuc updated = khuVucRepository.save(khuVuc);
+        return convertToResponseDTO(updated);
     }
 
-    @Override
-    @Transactional
-    public void delete(String maKhuVuc) {
+    public void deleteKhuVuc(String maKhuVuc) {
         khuVucRepository.deleteById(maKhuVuc);
     }
 
-    private KhuVucResponseDTO convertToDTO(KhuVuc khuVuc) {
+    private KhuVucResponseDTO convertToResponseDTO(KhuVuc khuVuc) {
         return KhuVucResponseDTO.builder()
                 .maKhuVuc(khuVuc.getMaKhuVuc())
                 .tenKhuVuc(khuVuc.getTenKhuVuc())
                 .build();
     }
 }
-

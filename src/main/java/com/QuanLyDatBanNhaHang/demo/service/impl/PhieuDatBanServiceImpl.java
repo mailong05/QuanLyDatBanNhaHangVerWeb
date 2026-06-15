@@ -1,77 +1,112 @@
 package com.QuanLyDatBanNhaHang.demo.service.impl;
 
-import com.QuanLyDatBanNhaHang.demo.dto.response.PhieuDatBanDTO;
+import com.QuanLyDatBanNhaHang.demo.service.PhieuDatBanService;
+
+import com.QuanLyDatBanNhaHang.demo.dto.request.PhieuDatBanCreateRequestDTO;
+import com.QuanLyDatBanNhaHang.demo.dto.request.PhieuDatBanUpdateRequestDTO;
+import com.QuanLyDatBanNhaHang.demo.dto.response.PhieuDatBanResponseDTO;
+import com.QuanLyDatBanNhaHang.demo.entity.KhachHang;
+import com.QuanLyDatBanNhaHang.demo.entity.NhanVien;
 import com.QuanLyDatBanNhaHang.demo.entity.PhieuDatBan;
+import com.QuanLyDatBanNhaHang.demo.repository.KhachHangRepository;
+import com.QuanLyDatBanNhaHang.demo.repository.NhanVienRepository;
 import com.QuanLyDatBanNhaHang.demo.repository.PhieuDatBanRepository;
-import com.QuanLyDatBanNhaHang.demo.service.PhieuDatBanServiceInterface;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
+import com.QuanLyDatBanNhaHang.demo.exception.ResourceNotFoundException;
 
-/**
- * Implementation của PhieuDatBanService.
- *
- * Trách nhiệm:
- * 1. Gọi Repository để lấy dữ liệu (với JOIN FETCH để tránh N+1)
- * 2. Chuyển đổi Entity sang DTO (bốc thông tin cần thiết)
- * 3. Trả DTO cho Controller
- */
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
-public class PhieuDatBanServiceImpl implements PhieuDatBanServiceInterface {
+public class PhieuDatBanServiceImpl implements PhieuDatBanService {
 
     private final PhieuDatBanRepository phieuDatBanRepository;
+    private final KhachHangRepository khachHangRepository;
+    private final NhanVienRepository nhanVienRepository;
 
-    @Override
-    public List<PhieuDatBanDTO> getAllPhieuDatBan() {
-        List<PhieuDatBan> phieus = phieuDatBanRepository.findAllWithRelations();
-        return phieus.stream()
-                .map(this::convertToDTO)
+    public List<PhieuDatBanResponseDTO> getAllPhieuDatBan() {
+        return phieuDatBanRepository.findAllWithRelations().stream()
+                .map(this::convertToResponseDTO)
                 .collect(Collectors.toList());
     }
 
-    @Override
-    public Optional<PhieuDatBanDTO> getPhieuDatBanById(String maPhieuDat) {
-        return phieuDatBanRepository.findByIdWithRelations(maPhieuDat)
-                .map(this::convertToDTO);
+    public PhieuDatBanResponseDTO getPhieuDatBanById(String maPhieuDat) {
+        PhieuDatBan phieuDatBan = phieuDatBanRepository.findByMaPhieuDatIgnoreCase(maPhieuDat)
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy Phiếu Đặt Bàn với mã: " + maPhieuDat));
+        return convertToResponseDTO(phieuDatBan);
     }
 
-    @Override
-    public List<PhieuDatBanDTO> getPhieuByKhachHang(String maKH) {
-        List<PhieuDatBan> phieus = phieuDatBanRepository.findByKhachHangWithRelations(maKH);
-        return phieus.stream()
-                .map(this::convertToDTO)
-                .collect(Collectors.toList());
+    public PhieuDatBanResponseDTO createPhieuDatBan(PhieuDatBanCreateRequestDTO requestDTO) {
+        NhanVien nhanVien = nhanVienRepository.findById(requestDTO.getMaNV())
+                .orElseThrow(() -> new ResourceNotFoundException("Nhân viên không tồn tại"));
+
+        KhachHang khachHang = null;
+        if (requestDTO.getMaKH() != null && !requestDTO.getMaKH().isEmpty()) {
+            khachHang = khachHangRepository.findById(requestDTO.getMaKH())
+                    .orElseThrow(() -> new ResourceNotFoundException("Khách hàng không tồn tại"));
+        }
+
+        PhieuDatBan phieuDatBan = PhieuDatBan.builder()
+                .maPhieuDat(requestDTO.getMaPhieuDat())
+                .ngayLapPhieu(requestDTO.getNgayLapPhieu())
+                .thoiGianDen(requestDTO.getThoiGianDen())
+                .soLuongNguoi(requestDTO.getSoLuongNguoi())
+                .ghiChu(requestDTO.getGhiChu())
+                .trangThai(requestDTO.getTrangThai())
+                .tienDatCoc(requestDTO.getTienDatCoc())
+                .khachHang(khachHang)
+                .nhanVien(nhanVien)
+                .build();
+
+        PhieuDatBan saved = phieuDatBanRepository.save(phieuDatBan);
+        return convertToResponseDTO(saved);
     }
 
-    @Override
-    public List<PhieuDatBanDTO> getPendingPhieuDatBan() {
-        List<PhieuDatBan> phieus = phieuDatBanRepository.findAllPendingWithRelations();
-        return phieus.stream()
-                .map(this::convertToDTO)
-                .collect(Collectors.toList());
+    public PhieuDatBanResponseDTO updatePhieuDatBan(String maPhieuDat, PhieuDatBanUpdateRequestDTO requestDTO) {
+        PhieuDatBan phieuDatBan = phieuDatBanRepository.findByMaPhieuDatIgnoreCase(maPhieuDat)
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy Phiếu Đặt Bàn với mã: " + maPhieuDat));
+
+        NhanVien nhanVien = nhanVienRepository.findById(requestDTO.getMaNV())
+                .orElseThrow(() -> new ResourceNotFoundException("Nhân viên không tồn tại"));
+
+        KhachHang khachHang = null;
+        if (requestDTO.getMaKH() != null && !requestDTO.getMaKH().isEmpty()) {
+            khachHang = khachHangRepository.findById(requestDTO.getMaKH())
+                    .orElseThrow(() -> new ResourceNotFoundException("Khách hàng không tồn tại"));
+        }
+
+        phieuDatBan.setNgayLapPhieu(requestDTO.getNgayLapPhieu());
+        phieuDatBan.setThoiGianDen(requestDTO.getThoiGianDen());
+        phieuDatBan.setSoLuongNguoi(requestDTO.getSoLuongNguoi());
+        phieuDatBan.setGhiChu(requestDTO.getGhiChu());
+        phieuDatBan.setTrangThai(requestDTO.getTrangThai());
+        phieuDatBan.setTienDatCoc(requestDTO.getTienDatCoc());
+        phieuDatBan.setKhachHang(khachHang);
+        phieuDatBan.setNhanVien(nhanVien);
+
+        PhieuDatBan updated = phieuDatBanRepository.save(phieuDatBan);
+        return convertToResponseDTO(updated);
     }
 
-    private PhieuDatBanDTO convertToDTO(PhieuDatBan phieu) {
-        return PhieuDatBanDTO.builder()
-                .maPhieuDat(phieu.getMaPhieuDat())
-                .ngayLapPhieu(phieu.getNgayLapPhieu())
-                .thoiGianDen(phieu.getThoiGianDen())
-                .soLuongNguoi(phieu.getSoLuongNguoi())
-                .ghiChu(phieu.getGhiChu())
-                .trangThai(phieu.getTrangThai())
-                .tienDatCoc(phieu.getTienDatCoc())
-                .maKH(phieu.getKhachHang() != null ? phieu.getKhachHang().getMaKH() : null)
-                .tenKH(phieu.getKhachHang() != null ? phieu.getKhachHang().getHoTen() : null)
-                .sdtKH(phieu.getKhachHang() != null ? phieu.getKhachHang().getSdt() : null)
-                .maNV(phieu.getNhanVien() != null ? phieu.getNhanVien().getMaNV() : null)
-                .hoTenNV(phieu.getNhanVien() != null ? phieu.getNhanVien().getHoTen() : null)
+    public void deletePhieuDatBan(String maPhieuDat) {
+        phieuDatBanRepository.deleteById(maPhieuDat);
+    }
+
+    private PhieuDatBanResponseDTO convertToResponseDTO(PhieuDatBan phieuDatBan) {
+        return PhieuDatBanResponseDTO.builder()
+                .maPhieuDat(phieuDatBan.getMaPhieuDat())
+                .ngayLapPhieu(phieuDatBan.getNgayLapPhieu())
+                .thoiGianDen(phieuDatBan.getThoiGianDen())
+                .soLuongNguoi(phieuDatBan.getSoLuongNguoi())
+                .ghiChu(phieuDatBan.getGhiChu())
+                .trangThai(phieuDatBan.getTrangThai())
+                .tienDatCoc(phieuDatBan.getTienDatCoc())
+                .maKH(phieuDatBan.getKhachHang() != null ? phieuDatBan.getKhachHang().getMaKH() : null)
+                .hoTenKH(phieuDatBan.getKhachHang() != null ? phieuDatBan.getKhachHang().getHoTen() : null)
+                .maNV(phieuDatBan.getNhanVien() != null ? phieuDatBan.getNhanVien().getMaNV() : null)
+                .hoTenNV(phieuDatBan.getNhanVien() != null ? phieuDatBan.getNhanVien().getHoTen() : null)
                 .build();
     }
 }
-

@@ -1,106 +1,93 @@
 package com.QuanLyDatBanNhaHang.demo.service.impl;
 
-import com.QuanLyDatBanNhaHang.demo.dto.request.CaLamViecRequestDTO;
+import com.QuanLyDatBanNhaHang.demo.service.CaLamViecService;
+
+import com.QuanLyDatBanNhaHang.demo.dto.request.CaLamViecCreateRequestDTO;
+import com.QuanLyDatBanNhaHang.demo.dto.request.CaLamViecUpdateRequestDTO;
 import com.QuanLyDatBanNhaHang.demo.dto.response.CaLamViecResponseDTO;
 import com.QuanLyDatBanNhaHang.demo.entity.CaLamViec;
+import com.QuanLyDatBanNhaHang.demo.entity.NhanVien;
 import com.QuanLyDatBanNhaHang.demo.repository.CaLamViecRepository;
 import com.QuanLyDatBanNhaHang.demo.repository.NhanVienRepository;
-import com.QuanLyDatBanNhaHang.demo.service.CaLamViecService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
+import com.QuanLyDatBanNhaHang.demo.exception.ResourceNotFoundException;
 
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
 public class CaLamViecServiceImpl implements CaLamViecService {
 
     private final CaLamViecRepository caLamViecRepository;
     private final NhanVienRepository nhanVienRepository;
 
-    @Override
-    public List<CaLamViecResponseDTO> getAll() {
+    public List<CaLamViecResponseDTO> getAllCaLamViec() {
         return caLamViecRepository.findAllWithRelations().stream()
-                .map(this::convertToDTO)
+                .map(this::convertToResponseDTO)
                 .collect(Collectors.toList());
     }
 
-    @Override
-    public Optional<CaLamViecResponseDTO> getById(String maCa) {
-        return caLamViecRepository.findByIdWithRelations(maCa)
-                .map(this::convertToDTO);
+    public CaLamViecResponseDTO getCaLamViecById(String maCa) {
+        CaLamViec caLamViec = caLamViecRepository.findByMaCaIgnoreCase(maCa)
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy Ca Làm Việc với mã: " + maCa));
+        return convertToResponseDTO(caLamViec);
     }
 
-    @Override
-    @Transactional
-    public CaLamViecResponseDTO create(CaLamViecRequestDTO dto) {
-        return nhanVienRepository.findById(dto.getMaNV()).map(nhanVien -> {
-            CaLamViec caLamViec = CaLamViec.builder()
-                    .maCa(dto.getMaCa())
-                    .nhanVien(nhanVien)
-                    .thoiGianVaoCa(dto.getThoiGianVaoCa())
-                    .thoiGianKetCa(dto.getThoiGianKetCa())
-                    .tienDauCa(dto.getTienDauCa())
-                    .tienKetCa(dto.getTienKetCa())
-                    .trangThai(dto.getTrangThai())
-                    .ghiChu(dto.getGhiChu())
-                    .build();
-            CaLamViec saved = caLamViecRepository.save(caLamViec);
-            return convertToDTO(saved);
-        }).orElseThrow(() -> new RuntimeException("NhanVien not found: " + dto.getMaNV()));
+    public CaLamViecResponseDTO createCaLamViec(CaLamViecCreateRequestDTO requestDTO) {
+        NhanVien nhanVien = nhanVienRepository.findById(requestDTO.getMaNV())
+                .orElseThrow(() -> new ResourceNotFoundException("Nhân viên không tồn tại"));
+
+        CaLamViec caLamViec = CaLamViec.builder()
+                .maCa(requestDTO.getMaCa())
+                .thoiGianVaoCa(requestDTO.getThoiGianVaoCa())
+                .thoiGianKetCa(requestDTO.getThoiGianKetCa())
+                .tienDauCa(requestDTO.getTienDauCa())
+                .tienKetCa(requestDTO.getTienKetCa())
+                .trangThai(requestDTO.getTrangThai())
+                .ghiChu(requestDTO.getGhiChu())
+                .nhanVien(nhanVien)
+                .build();
+
+        CaLamViec saved = caLamViecRepository.save(caLamViec);
+        return convertToResponseDTO(saved);
     }
 
-    @Override
-    @Transactional
-    public Optional<CaLamViecResponseDTO> update(String maCa, CaLamViecRequestDTO dto) {
-        return caLamViecRepository.findById(maCa).map(caLamViec -> {
-            caLamViec.setThoiGianVaoCa(dto.getThoiGianVaoCa());
-            caLamViec.setThoiGianKetCa(dto.getThoiGianKetCa());
-            caLamViec.setTienDauCa(dto.getTienDauCa());
-            caLamViec.setTienKetCa(dto.getTienKetCa());
-            caLamViec.setTrangThai(dto.getTrangThai());
-            caLamViec.setGhiChu(dto.getGhiChu());
-            CaLamViec updated = caLamViecRepository.save(caLamViec);
-            return convertToDTO(updated);
-        });
+    public CaLamViecResponseDTO updateCaLamViec(String maCa, CaLamViecUpdateRequestDTO requestDTO) {
+        CaLamViec caLamViec = caLamViecRepository.findByMaCaIgnoreCase(maCa)
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy Ca Làm Việc với mã: " + maCa));
+
+        NhanVien nhanVien = nhanVienRepository.findById(requestDTO.getMaNV())
+                .orElseThrow(() -> new ResourceNotFoundException("Nhân viên không tồn tại"));
+
+        caLamViec.setThoiGianVaoCa(requestDTO.getThoiGianVaoCa());
+        caLamViec.setThoiGianKetCa(requestDTO.getThoiGianKetCa());
+        caLamViec.setTienDauCa(requestDTO.getTienDauCa());
+        caLamViec.setTienKetCa(requestDTO.getTienKetCa());
+        caLamViec.setTrangThai(requestDTO.getTrangThai());
+        caLamViec.setGhiChu(requestDTO.getGhiChu());
+        caLamViec.setNhanVien(nhanVien);
+
+        CaLamViec updated = caLamViecRepository.save(caLamViec);
+        return convertToResponseDTO(updated);
     }
 
-    @Override
-    @Transactional
-    public void delete(String maCa) {
+    public void deleteCaLamViec(String maCa) {
         caLamViecRepository.deleteById(maCa);
     }
 
-    @Override
-    public List<CaLamViecResponseDTO> getByNhanVien(String maNV) {
-        return caLamViecRepository.findByNhanVien(maNV).stream()
-                .map(this::convertToDTO)
-                .collect(Collectors.toList());
-    }
-
-    @Override
-    public List<CaLamViecResponseDTO> getByTrangThai(String trangThai) {
-        return caLamViecRepository.findByTrangThai(trangThai).stream()
-                .map(this::convertToDTO)
-                .collect(Collectors.toList());
-    }
-
-    private CaLamViecResponseDTO convertToDTO(CaLamViec caLamViec) {
+    private CaLamViecResponseDTO convertToResponseDTO(CaLamViec caLamViec) {
         return CaLamViecResponseDTO.builder()
                 .maCa(caLamViec.getMaCa())
-                .maNV(caLamViec.getNhanVien().getMaNV())
-                .hoTenNV(caLamViec.getNhanVien().getHoTen())
                 .thoiGianVaoCa(caLamViec.getThoiGianVaoCa())
                 .thoiGianKetCa(caLamViec.getThoiGianKetCa())
                 .tienDauCa(caLamViec.getTienDauCa())
                 .tienKetCa(caLamViec.getTienKetCa())
                 .trangThai(caLamViec.getTrangThai())
                 .ghiChu(caLamViec.getGhiChu())
+                .maNV(caLamViec.getNhanVien() != null ? caLamViec.getNhanVien().getMaNV() : null)
+                .hoTenNV(caLamViec.getNhanVien() != null ? caLamViec.getNhanVien().getHoTen() : null)
                 .build();
     }
 }
-
