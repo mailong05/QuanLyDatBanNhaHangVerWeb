@@ -36,9 +36,7 @@ public class BanAnServiceImpl implements BanAnService {
 
     @Override
     public BanAnResponseDTO createBanAn(BanAnCreateRequestDTO requestDTO) {
-        if (banAnRepository.findByMaBanIgnoreCase(requestDTO.getMaBan()).isPresent()) {
-            throw new DuplicateResourceException("Mã bàn đã tồn tại");
-        }
+
 
         KhuVuc kv = null;
         if (requestDTO.getMaKhuVuc() != null && !requestDTO.getMaKhuVuc().isBlank()) {
@@ -47,7 +45,7 @@ public class BanAnServiceImpl implements BanAnService {
         }
 
         BanAn ba = BanAn.builder()
-                .maBan(requestDTO.getMaBan())
+                .maBan(generateNextMaBan())
                 .soGhe(requestDTO.getSoGhe())
                 .viTri(requestDTO.getViTri())
                 .trangThai(requestDTO.getTrangThai())
@@ -93,5 +91,19 @@ public class BanAnServiceImpl implements BanAnService {
                 .maKhuVuc(ba.getKhuVuc() != null ? ba.getKhuVuc().getMaKhuVuc() : null)
                 .tenKhuVuc(ba.getKhuVuc() != null ? ba.getKhuVuc().getTenKhuVuc() : null)
                 .build();
+    }
+
+    private String generateNextMaBan() {
+        String maxMa = banAnRepository.findMaxMaBan();
+        if (maxMa == null || maxMa.isEmpty()) {
+            return String.format("BA%04d", 1);
+        }
+        try {
+            String numberPart = maxMa.substring(2);
+            int currentNum = Integer.parseInt(numberPart);
+            return String.format("BA%04d", currentNum + 1);
+        } catch (Exception e) {
+            return String.format("BA%04d", 1);
+        }
     }
 }

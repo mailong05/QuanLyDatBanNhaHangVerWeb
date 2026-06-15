@@ -41,9 +41,6 @@ public class NhanVienServiceImpl implements NhanVienService {
 
     @Override
     public NhanVienResponseDTO createNhanVien(NhanVienCreateRequestDTO requestDTO) {
-        if (nhanVienRepository.findByMaNVIgnoreCase(requestDTO.getMaNV()).isPresent()) {
-            throw new DuplicateResourceException("Mã nhân viên đã tồn tại");
-        }
 
         TaiKhoan tk = null;
         if (requestDTO.getUsername() != null && !requestDTO.getUsername().isBlank()) {
@@ -52,7 +49,7 @@ public class NhanVienServiceImpl implements NhanVienService {
         }
 
         NhanVien nv = NhanVien.builder()
-                .maNV(requestDTO.getMaNV())
+                .maNV(generateNextMaNV())
                 .hoTen(requestDTO.getHoTen())
                 .sdt(requestDTO.getSdt())
                 .chucVu(requestDTO.getChucVu())
@@ -107,5 +104,19 @@ public class NhanVienServiceImpl implements NhanVienService {
                 .username(nv.getTaiKhoan() != null ? nv.getTaiKhoan().getUsername() : null)
                 .quyenHan(nv.getTaiKhoan() != null ? nv.getTaiKhoan().getQuyenHan().name() : null)
                 .build();
+    }
+
+    private String generateNextMaNV() {
+        String maxMa = nhanVienRepository.findMaxMaNV();
+        if (maxMa == null || maxMa.isEmpty()) {
+            return String.format("NV%04d", 1);
+        }
+        try {
+            String numberPart = maxMa.substring(2);
+            int currentNum = Integer.parseInt(numberPart);
+            return String.format("NV%04d", currentNum + 1);
+        } catch (Exception e) {
+            return String.format("NV%04d", 1);
+        }
     }
 }

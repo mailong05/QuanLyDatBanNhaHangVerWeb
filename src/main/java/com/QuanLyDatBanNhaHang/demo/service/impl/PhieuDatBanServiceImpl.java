@@ -52,9 +52,7 @@ public class PhieuDatBanServiceImpl implements PhieuDatBanService {
     @Override
     @Transactional
     public PhieuDatBanResponseDTO createPhieuDatBan(PhieuDatBanCreateRequestDTO requestDTO) {
-        if (phieuDatBanRepository.findByMaPhieuDatIgnoreCaseWithRelations(requestDTO.getMaPhieuDat()).isPresent()) {
-            throw new DuplicateResourceException("Mã phiếu đặt đã tồn tại");
-        }
+
 
         KhachHang kh = khachHangRepository.findByMaKHIgnoreCase(requestDTO.getMaKH())
                 .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy Khách hàng: " + requestDTO.getMaKH()));
@@ -66,7 +64,7 @@ public class PhieuDatBanServiceImpl implements PhieuDatBanService {
         }
 
         PhieuDatBan pdb = PhieuDatBan.builder()
-                .maPhieuDat(requestDTO.getMaPhieuDat())
+                .maPhieuDat(generateNextMaPhieuDat())
                 .ngayLapPhieu(LocalDateTime.now())
                 .thoiGianDen(requestDTO.getThoiGianDen())
                 .soLuongNguoi(requestDTO.getSoLuongNguoi())
@@ -160,5 +158,19 @@ public class PhieuDatBanServiceImpl implements PhieuDatBanService {
                 .hoTenNV(pdb.getNhanVien() != null ? pdb.getNhanVien().getHoTen() : null)
                 .chiTiets(chiTiets)
                 .build();
+    }
+
+    private String generateNextMaPhieuDat() {
+        String maxMa = phieuDatBanRepository.findMaxMaPhieuDat();
+        if (maxMa == null || maxMa.isEmpty()) {
+            return String.format("PDB%06d", 1);
+        }
+        try {
+            String numberPart = maxMa.substring(3);
+            int currentNum = Integer.parseInt(numberPart);
+            return String.format("PDB%06d", currentNum + 1);
+        } catch (Exception e) {
+            return String.format("PDB%06d", 1);
+        }
     }
 }

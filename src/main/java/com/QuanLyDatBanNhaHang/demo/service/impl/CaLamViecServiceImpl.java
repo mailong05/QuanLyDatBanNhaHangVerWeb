@@ -33,12 +33,10 @@ public class CaLamViecServiceImpl implements CaLamViecService {
 
     @Override
     public CaLamViecResponseDTO createCaLamViec(CaLamViecCreateRequestDTO requestDTO) {
-        if (caLamViecRepository.findByMaCaIgnoreCase(requestDTO.getMaCa()).isPresent()) {
-            throw new DuplicateResourceException("Mã ca làm việc đã tồn tại");
-        }
+
         
         CaLamViec caLamViec = CaLamViec.builder()
-                .maCa(requestDTO.getMaCa())
+                .maCa(generateNextMaCa())
                 .tenCa(requestDTO.getTenCa())
                 .gioBatDau(requestDTO.getGioBatDau())
                 .gioKetThuc(requestDTO.getGioKetThuc())
@@ -74,5 +72,19 @@ public class CaLamViecServiceImpl implements CaLamViecService {
                 .gioBatDau(caLamViec.getGioBatDau())
                 .gioKetThuc(caLamViec.getGioKetThuc())
                 .build();
+    }
+
+    private String generateNextMaCa() {
+        String maxMa = caLamViecRepository.findMaxMaCa();
+        if (maxMa == null || maxMa.isEmpty()) {
+            return String.format("CA%03d", 1);
+        }
+        try {
+            String numberPart = maxMa.substring(2);
+            int currentNum = Integer.parseInt(numberPart);
+            return String.format("CA%03d", currentNum + 1);
+        } catch (Exception e) {
+            return String.format("CA%03d", 1);
+        }
     }
 }

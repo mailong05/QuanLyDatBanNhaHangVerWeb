@@ -33,12 +33,10 @@ public class KhuyenMaiServiceImpl implements KhuyenMaiService {
 
     @Override
     public KhuyenMaiResponseDTO createKhuyenMai(KhuyenMaiCreateRequestDTO requestDTO) {
-        if (khuyenMaiRepository.findByMaKMIgnoreCase(requestDTO.getMaKM()).isPresent()) {
-            throw new DuplicateResourceException("Mã khuyến mãi đã tồn tại");
-        }
+
         
         KhuyenMai km = KhuyenMai.builder()
-                .maKM(requestDTO.getMaKM())
+                .maKM(generateNextMaKM())
                 .tenKM(requestDTO.getTenKM())
                 .giaTriGiam(requestDTO.getGiaTriGiam())
                 .ngayBatDau(requestDTO.getNgayBatDau())
@@ -83,5 +81,19 @@ public class KhuyenMaiServiceImpl implements KhuyenMaiService {
                 .dieuKienToiThieu(km.getDieuKienToiThieu())
                 .trangThai(km.getTrangThai())
                 .build();
+    }
+
+    private String generateNextMaKM() {
+        String maxMa = khuyenMaiRepository.findMaxMaKM();
+        if (maxMa == null || maxMa.isEmpty()) {
+            return String.format("KM%04d", 1);
+        }
+        try {
+            String numberPart = maxMa.substring(2);
+            int currentNum = Integer.parseInt(numberPart);
+            return String.format("KM%04d", currentNum + 1);
+        } catch (Exception e) {
+            return String.format("KM%04d", 1);
+        }
     }
 }

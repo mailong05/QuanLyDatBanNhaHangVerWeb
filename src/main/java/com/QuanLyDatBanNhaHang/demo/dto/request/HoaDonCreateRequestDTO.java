@@ -20,9 +20,7 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 public class HoaDonCreateRequestDTO {
-    @NotBlank(message = "Mã hóa đơn không được để trống")
-    @Pattern(regexp = "^[a-zA-Z0-9_]+$", message = "Mã không hợp lệ")
-    private String maHD;
+    
 
     private Double thueSuat;
     private Double tienThue;

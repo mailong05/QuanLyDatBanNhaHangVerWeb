@@ -19,4 +19,6 @@ public interface HoaDonRepository extends JpaRepository<HoaDon, Long> {
     @Query(value = "SELECT h FROM HoaDon h LEFT JOIN FETCH h.nhanVien", 
            countQuery = "SELECT COUNT(h) FROM HoaDon h")
     Page<HoaDon> findAllWithRelations(Pageable pageable);
+    @Query("SELECT MAX(h.maHD) FROM HoaDon h")
+    String findMaxMaHD();
 }

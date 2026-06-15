@@ -14,9 +14,6 @@ import lombok.Setter;
 @AllArgsConstructor
 @Builder
 public class KhuVucCreateRequestDTO {
-    @NotBlank(message = "Mã khu vực không được để trống")
-    @Pattern(regexp = "^[a-zA-Z0-9_]+$", message = "Mã không hợp lệ")
-    private String maKhuVuc;
 
     @NotBlank(message = "Tên khu vực không được để trống")
     private String tenKhuVuc;

@@ -18,9 +18,7 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @Builder
 public class KhuyenMaiCreateRequestDTO {
-    @NotBlank(message = "Mã khuyến mãi không được để trống")
-    @Pattern(regexp = "^[a-zA-Z0-9_]+$", message = "Mã không hợp lệ")
-    private String maKM;
+    
 
     @NotBlank(message = "Tên khuyến mãi không được để trống")
     private String tenKM;

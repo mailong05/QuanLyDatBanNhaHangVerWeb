@@ -17,9 +17,7 @@ import lombok.Setter;
 @Builder
 public class BanAnCreateRequestDTO {
     
-    @NotBlank(message = "Mã bàn không được để trống")
-    @Pattern(regexp = "^[a-zA-Z0-9_]+$", message = "Mã không hợp lệ")
-    private String maBan;
+    
 
     private Integer soGhe;
     private String viTri;

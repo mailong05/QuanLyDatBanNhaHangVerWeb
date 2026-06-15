@@ -33,12 +33,10 @@ public class MonAnServiceImpl implements MonAnService {
 
     @Override
     public MonAnResponseDTO createMonAn(MonAnCreateRequestDTO requestDTO) {
-        if (monAnRepository.findByMaMonIgnoreCase(requestDTO.getMaMon()).isPresent()) {
-            throw new DuplicateResourceException("Mã món ăn đã tồn tại");
-        }
+
         
         MonAn ma = MonAn.builder()
-                .maMon(requestDTO.getMaMon())
+                .maMon(generateNextMaMon())
                 .tenMon(requestDTO.getTenMon())
                 .donGia(requestDTO.getDonGia())
                 .donViTinh(requestDTO.getDonViTinh())
@@ -48,6 +46,20 @@ public class MonAnServiceImpl implements MonAnService {
                 .build();
                 
         return convertToResponseDTO(monAnRepository.save(ma));
+    }
+
+    private String generateNextMaMon() {
+        String maxMa = monAnRepository.findMaxMaMon();
+        if (maxMa == null || maxMa.isEmpty()) {
+            return String.format("MA%04d", 1);
+        }
+        try {
+            String numberPart = maxMa.substring(2);
+            int currentNum = Integer.parseInt(numberPart);
+            return String.format("MA%04d", currentNum + 1);
+        } catch (Exception e) {
+            return String.format("MA%04d", 1);
+        }
     }
 
     @Override

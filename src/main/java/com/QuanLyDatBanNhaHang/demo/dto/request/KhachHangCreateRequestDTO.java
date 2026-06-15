@@ -17,9 +17,7 @@ import lombok.Setter;
 @Builder
 public class KhachHangCreateRequestDTO {
     
-    @NotBlank(message = "Mã khách hàng không được để trống")
-    @Pattern(regexp = "^[a-zA-Z0-9_]+$", message = "Mã không hợp lệ")
-    private String maKH;
+    
 
     @NotBlank(message = "Họ tên không được để trống")
     private String hoTen;

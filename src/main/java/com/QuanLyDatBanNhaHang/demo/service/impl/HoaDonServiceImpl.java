@@ -59,9 +59,7 @@ public class HoaDonServiceImpl implements HoaDonService {
     @Override
     @Transactional
     public HoaDonResponseDTO createHoaDon(HoaDonCreateRequestDTO requestDTO) {
-        if (hoaDonRepository.findByMaHDIgnoreCaseWithRelations(requestDTO.getMaHD()).isPresent()) {
-            throw new DuplicateResourceException("Mã hóa đơn đã tồn tại");
-        }
+
 
         PhieuDatBan pdb = phieuDatBanRepository.findByMaPhieuDatIgnoreCaseWithRelations(requestDTO.getMaPhieuDat())
                 .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy Phiếu đặt: " + requestDTO.getMaPhieuDat()));
@@ -77,7 +75,7 @@ public class HoaDonServiceImpl implements HoaDonService {
         }
 
         HoaDon hd = HoaDon.builder()
-                .maHD(requestDTO.getMaHD())
+                .maHD(generateNextMaHD())
                 .thueSuat(requestDTO.getThueSuat())
                 .tienThue(requestDTO.getTienThue())
                 .tyLePhiDV(requestDTO.getTyLePhiDV())
@@ -212,5 +210,19 @@ public class HoaDonServiceImpl implements HoaDonService {
                 .maThue(hd.getThue() != null ? hd.getThue().getMaThue() : null)
                 .chiTiets(chiTiets)
                 .build();
+    }
+
+    private String generateNextMaHD() {
+        String maxMa = hoaDonRepository.findMaxMaHD();
+        if (maxMa == null || maxMa.isEmpty()) {
+            return String.format("HD%06d", 1);
+        }
+        try {
+            String numberPart = maxMa.substring(2);
+            int currentNum = Integer.parseInt(numberPart);
+            return String.format("HD%06d", currentNum + 1);
+        } catch (Exception e) {
+            return String.format("HD%06d", 1);
+        }
     }
 }

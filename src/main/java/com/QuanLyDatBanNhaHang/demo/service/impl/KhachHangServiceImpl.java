@@ -41,9 +41,6 @@ public class KhachHangServiceImpl implements KhachHangService {
 
     @Override
     public KhachHangResponseDTO createKhachHang(KhachHangCreateRequestDTO requestDTO) {
-        if (khachHangRepository.findByMaKHIgnoreCase(requestDTO.getMaKH()).isPresent()) {
-            throw new DuplicateResourceException("Mã khách hàng đã tồn tại");
-        }
 
         TaiKhoan tk = null;
         if (requestDTO.getUsername() != null && !requestDTO.getUsername().isBlank()) {
@@ -52,7 +49,7 @@ public class KhachHangServiceImpl implements KhachHangService {
         }
 
         KhachHang kh = KhachHang.builder()
-                .maKH(requestDTO.getMaKH())
+                .maKH(generateNextMaKH())
                 .hoTen(requestDTO.getHoTen())
                 .sdt(requestDTO.getSdt())
                 .loaiThanhVien(requestDTO.getLoaiThanhVien())
@@ -103,5 +100,19 @@ public class KhachHangServiceImpl implements KhachHangService {
                 .username(kh.getTaiKhoan() != null ? kh.getTaiKhoan().getUsername() : null)
                 .quyenHan(kh.getTaiKhoan() != null ? kh.getTaiKhoan().getQuyenHan().name() : null)
                 .build();
+    }
+
+    private String generateNextMaKH() {
+        String maxMa = khachHangRepository.findMaxMaKH();
+        if (maxMa == null || maxMa.isEmpty()) {
+            return String.format("KH%04d", 1);
+        }
+        try {
+            String numberPart = maxMa.substring(2);
+            int currentNum = Integer.parseInt(numberPart);
+            return String.format("KH%04d", currentNum + 1);
+        } catch (Exception e) {
+            return String.format("KH%04d", 1);
+        }
     }
 }

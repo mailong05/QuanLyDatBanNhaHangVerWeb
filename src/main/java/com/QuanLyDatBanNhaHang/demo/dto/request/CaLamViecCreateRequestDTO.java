@@ -18,9 +18,7 @@ import java.time.LocalTime;
 @Builder
 public class CaLamViecCreateRequestDTO {
     
-    @NotBlank(message = "Mã ca không được để trống")
-    @Pattern(regexp = "^[a-zA-Z0-9_]+$", message = "Mã không hợp lệ")
-    private String maCa;
+    
 
     @NotBlank(message = "Tên ca không được để trống")
     private String tenCa;

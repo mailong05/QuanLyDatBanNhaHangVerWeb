@@ -33,12 +33,10 @@ public class KhuVucServiceImpl implements KhuVucService {
 
     @Override
     public KhuVucResponseDTO createKhuVuc(KhuVucCreateRequestDTO requestDTO) {
-        if (khuVucRepository.findByMaKhuVucIgnoreCase(requestDTO.getMaKhuVuc()).isPresent()) {
-            throw new DuplicateResourceException("Mã khu vực đã tồn tại");
-        }
+
         
         KhuVuc kv = KhuVuc.builder()
-                .maKhuVuc(requestDTO.getMaKhuVuc())
+                .maKhuVuc(generateNextMaKV())
                 .tenKhuVuc(requestDTO.getTenKhuVuc())
                 .build();
                 
@@ -67,5 +65,33 @@ public class KhuVucServiceImpl implements KhuVucService {
                 .maKhuVuc(kv.getMaKhuVuc())
                 .tenKhuVuc(kv.getTenKhuVuc())
                 .build();
+    }
+
+    private String generateNextMaKV() {
+        String maxMa = khuVucRepository.findMaxMaKhuVuc();
+        if (maxMa == null || maxMa.isEmpty()) {
+            return String.format("KV%04d", 1);
+        }
+        try {
+            String numberPart = maxMa.substring(2);
+            int currentNum = Integer.parseInt(numberPart);
+            return String.format("KV%04d", currentNum + 1);
+        } catch (Exception e) {
+            return String.format("KV%04d", 1);
+        }
+    }
+
+    private String generateNextMaKhuVuc() {
+        String maxMa = khuVucRepository.findMaxMaKhuVuc();
+        if (maxMa == null || maxMa.isEmpty()) {
+            return String.format("KV%02d", 1);
+        }
+        try {
+            String numberPart = maxMa.substring(2);
+            int currentNum = Integer.parseInt(numberPart);
+            return String.format("KV%02d", currentNum + 1);
+        } catch (Exception e) {
+            return String.format("KV%02d", 1);
+        }
     }
 }

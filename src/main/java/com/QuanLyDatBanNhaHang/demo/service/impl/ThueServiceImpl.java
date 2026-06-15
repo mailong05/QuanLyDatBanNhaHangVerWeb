@@ -33,18 +33,30 @@ public class ThueServiceImpl implements ThueService {
 
     @Override
     public ThueResponseDTO createThue(ThueCreateRequestDTO requestDTO) {
-        if (thueRepository.findByMaThueIgnoreCase(requestDTO.getMaThue()).isPresent()) {
-            throw new DuplicateResourceException("Mã thuế đã tồn tại");
-        }
+
         
         Thue t = Thue.builder()
-                .maThue(requestDTO.getMaThue())
+                .maThue(generateNextMaThue())
                 .tenThue(requestDTO.getTenThue())
                 .thueSuat(requestDTO.getThueSuat())
                 .trangThai(requestDTO.getTrangThai())
                 .build();
                 
         return convertToResponseDTO(thueRepository.save(t));
+    }
+
+    private String generateNextMaThue() {
+        String maxMa = thueRepository.findMaxMaThue();
+        if (maxMa == null || maxMa.isEmpty()) {
+            return String.format("TH%04d", 1);
+        }
+        try {
+            String numberPart = maxMa.substring(2);
+            int currentNum = Integer.parseInt(numberPart);
+            return String.format("TH%04d", currentNum + 1);
+        } catch (Exception e) {
+            return String.format("TH%04d", 1);
+        }
     }
 
     @Override

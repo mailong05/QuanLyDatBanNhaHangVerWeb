@@ -20,9 +20,7 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 public class PhieuDatBanCreateRequestDTO {
-    @NotBlank(message = "Mã phiếu đặt không được để trống")
-    @Pattern(regexp = "^[a-zA-Z0-9_]+$", message = "Mã không hợp lệ")
-    private String maPhieuDat;
+    
 
     @NotNull(message = "Thời gian đến không được để trống")
     private LocalDateTime thoiGianDen;

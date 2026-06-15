@@ -20,9 +20,7 @@ import java.time.LocalDate;
 @Builder
 public class NhanVienCreateRequestDTO {
     
-    @NotBlank(message = "Mã nhân viên không được để trống")
-    @Pattern(regexp = "^[a-zA-Z0-9_]+$", message = "Mã không hợp lệ")
-    private String maNV;
+    
 
     @NotBlank(message = "Họ tên không được để trống")
     private String hoTen;

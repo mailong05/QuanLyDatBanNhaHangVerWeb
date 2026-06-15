@@ -16,9 +16,6 @@ import lombok.Setter;
 @AllArgsConstructor
 @Builder
 public class ThueCreateRequestDTO {
-    @NotBlank(message = "Mã thuế không được để trống")
-    @Pattern(regexp = "^[a-zA-Z0-9_]+$", message = "Mã không hợp lệ")
-    private String maThue;
 
     @NotBlank(message = "Tên thuế không được để trống")
     private String tenThue;

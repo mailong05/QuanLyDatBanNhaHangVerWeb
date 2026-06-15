@@ -16,9 +16,6 @@ import lombok.Setter;
 @AllArgsConstructor
 @Builder
 public class MonAnCreateRequestDTO {
-    @NotBlank(message = "Mã món không được để trống")
-    @Pattern(regexp = "^[a-zA-Z0-9_]+$", message = "Mã không hợp lệ")
-    private String maMon;
 
     @NotBlank(message = "Tên món không được để trống")
     private String tenMon;
