@@ -53,7 +53,8 @@ public class KhuVucServiceImpl implements KhuVucService {
     }
 
     public void deleteKhuVuc(String maKhuVuc) {
-        khuVucRepository.deleteById(maKhuVuc);
+        KhuVuc khuVuc = khuVucRepository.findByMaKhuVucIgnoreCase(maKhuVuc).orElseThrow(() -> new ResourceNotFoundException("Khong tim thay"));
+        khuVucRepository.delete(khuVuc);
     }
 
     private KhuVucResponseDTO convertToResponseDTO(KhuVuc khuVuc) {

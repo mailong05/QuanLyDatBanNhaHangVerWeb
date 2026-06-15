@@ -46,16 +46,16 @@ public class HoaDonServiceImpl implements HoaDonService {
     }
 
     public HoaDonResponseDTO createHoaDon(HoaDonCreateRequestDTO requestDTO) {
-        PhieuDatBan phieuDatBan = phieuDatBanRepository.findById(requestDTO.getMaPhieuDat())
+        PhieuDatBan phieuDatBan = phieuDatBanRepository.findByMaPhieuDatIgnoreCase(requestDTO.getMaPhieuDat())
                 .orElseThrow(() -> new ResourceNotFoundException("Phiếu đặt bàn không tồn tại"));
-        NhanVien nhanVien = nhanVienRepository.findById(requestDTO.getMaNV())
+        NhanVien nhanVien = nhanVienRepository.findByMaNVIgnoreCase(requestDTO.getMaNV())
                 .orElseThrow(() -> new ResourceNotFoundException("Nhân viên không tồn tại"));
-        Thue thue = thueRepository.findById(requestDTO.getMaThue())
+        Thue thue = thueRepository.findByMaThueIgnoreCase(requestDTO.getMaThue())
                 .orElseThrow(() -> new ResourceNotFoundException("Thuế không tồn tại"));
         
         KhuyenMai khuyenMai = null;
         if (requestDTO.getMaKM() != null && !requestDTO.getMaKM().isEmpty()) {
-            khuyenMai = khuyenMaiRepository.findById(requestDTO.getMaKM())
+            khuyenMai = khuyenMaiRepository.findByMaKMIgnoreCase(requestDTO.getMaKM())
                     .orElseThrow(() -> new ResourceNotFoundException("Khuyến mãi không tồn tại"));
         }
 
@@ -87,16 +87,16 @@ public class HoaDonServiceImpl implements HoaDonService {
         HoaDon hoaDon = hoaDonRepository.findByMaHDIgnoreCase(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy Hóa Đơn với ID: " + id));
 
-        PhieuDatBan phieuDatBan = phieuDatBanRepository.findById(requestDTO.getMaPhieuDat())
+        PhieuDatBan phieuDatBan = phieuDatBanRepository.findByMaPhieuDatIgnoreCase(requestDTO.getMaPhieuDat())
                 .orElseThrow(() -> new ResourceNotFoundException("Phiếu đặt bàn không tồn tại"));
-        NhanVien nhanVien = nhanVienRepository.findById(requestDTO.getMaNV())
+        NhanVien nhanVien = nhanVienRepository.findByMaNVIgnoreCase(requestDTO.getMaNV())
                 .orElseThrow(() -> new ResourceNotFoundException("Nhân viên không tồn tại"));
-        Thue thue = thueRepository.findById(requestDTO.getMaThue())
+        Thue thue = thueRepository.findByMaThueIgnoreCase(requestDTO.getMaThue())
                 .orElseThrow(() -> new ResourceNotFoundException("Thuế không tồn tại"));
         
         KhuyenMai khuyenMai = null;
         if (requestDTO.getMaKM() != null && !requestDTO.getMaKM().isEmpty()) {
-            khuyenMai = khuyenMaiRepository.findById(requestDTO.getMaKM())
+            khuyenMai = khuyenMaiRepository.findByMaKMIgnoreCase(requestDTO.getMaKM())
                     .orElseThrow(() -> new ResourceNotFoundException("Khuyến mãi không tồn tại"));
         }
 
@@ -122,7 +122,8 @@ public class HoaDonServiceImpl implements HoaDonService {
     }
 
     public void deleteHoaDon(String id) {
-        hoaDonRepository.deleteById(id);
+        HoaDon hoaDon = hoaDonRepository.findByMaHDIgnoreCase(id).orElseThrow(() -> new ResourceNotFoundException("Khong tim thay"));
+        hoaDonRepository.delete(hoaDon);
     }
 
     private HoaDonResponseDTO convertToResponseDTO(HoaDon hoaDon) {

@@ -39,12 +39,12 @@ public class PhieuDatBanServiceImpl implements PhieuDatBanService {
     }
 
     public PhieuDatBanResponseDTO createPhieuDatBan(PhieuDatBanCreateRequestDTO requestDTO) {
-        NhanVien nhanVien = nhanVienRepository.findById(requestDTO.getMaNV())
+        NhanVien nhanVien = nhanVienRepository.findByMaNVIgnoreCase(requestDTO.getMaNV())
                 .orElseThrow(() -> new ResourceNotFoundException("Nhân viên không tồn tại"));
 
         KhachHang khachHang = null;
         if (requestDTO.getMaKH() != null && !requestDTO.getMaKH().isEmpty()) {
-            khachHang = khachHangRepository.findById(requestDTO.getMaKH())
+            khachHang = khachHangRepository.findByMaKHIgnoreCase(requestDTO.getMaKH())
                     .orElseThrow(() -> new ResourceNotFoundException("Khách hàng không tồn tại"));
         }
 
@@ -68,12 +68,12 @@ public class PhieuDatBanServiceImpl implements PhieuDatBanService {
         PhieuDatBan phieuDatBan = phieuDatBanRepository.findByMaPhieuDatIgnoreCase(maPhieuDat)
                 .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy Phiếu Đặt Bàn với mã: " + maPhieuDat));
 
-        NhanVien nhanVien = nhanVienRepository.findById(requestDTO.getMaNV())
+        NhanVien nhanVien = nhanVienRepository.findByMaNVIgnoreCase(requestDTO.getMaNV())
                 .orElseThrow(() -> new ResourceNotFoundException("Nhân viên không tồn tại"));
 
         KhachHang khachHang = null;
         if (requestDTO.getMaKH() != null && !requestDTO.getMaKH().isEmpty()) {
-            khachHang = khachHangRepository.findById(requestDTO.getMaKH())
+            khachHang = khachHangRepository.findByMaKHIgnoreCase(requestDTO.getMaKH())
                     .orElseThrow(() -> new ResourceNotFoundException("Khách hàng không tồn tại"));
         }
 
@@ -91,7 +91,8 @@ public class PhieuDatBanServiceImpl implements PhieuDatBanService {
     }
 
     public void deletePhieuDatBan(String maPhieuDat) {
-        phieuDatBanRepository.deleteById(maPhieuDat);
+        PhieuDatBan phieuDatBan = phieuDatBanRepository.findByMaPhieuDatIgnoreCase(maPhieuDat).orElseThrow(() -> new ResourceNotFoundException("Khong tim thay"));
+        phieuDatBanRepository.delete(phieuDatBan);
     }
 
     private PhieuDatBanResponseDTO convertToResponseDTO(PhieuDatBan phieuDatBan) {

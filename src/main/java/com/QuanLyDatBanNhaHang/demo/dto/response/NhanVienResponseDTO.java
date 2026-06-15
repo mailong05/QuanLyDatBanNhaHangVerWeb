@@ -1,5 +1,7 @@
 package com.QuanLyDatBanNhaHang.demo.dto.response;
 
+import com.QuanLyDatBanNhaHang.demo.enums.*;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -17,9 +19,9 @@ public class NhanVienResponseDTO {
     private String maNV;
     private String hoTen;
     private String sdt;
-    private String chucVu;
+    private ChucVuNhanVien chucVu;
     private LocalDate ngayVaoLam;
     private Double luongCoBan;
-    private String trangThai;
+    private TrangThaiNhanVien trangThai;
     // Không trả về đối tượng TaiKhoan hay thông tin mật khẩu vì lý do bảo mật
 }

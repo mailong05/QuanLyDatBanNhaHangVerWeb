@@ -11,7 +11,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Page;
 
 @Repository
-public interface ThueRepository extends JpaRepository<Thue, String> {
+public interface ThueRepository extends JpaRepository<Thue, Long> {
     
     Optional<Thue> findByMaThueIgnoreCase(String maThue);
     List<Thue> findByTenThueContainingIgnoreCase(String tenThue);

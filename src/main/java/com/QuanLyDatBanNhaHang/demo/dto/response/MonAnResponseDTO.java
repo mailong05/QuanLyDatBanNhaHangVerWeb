@@ -1,5 +1,7 @@
 package com.QuanLyDatBanNhaHang.demo.dto.response;
 
+import com.QuanLyDatBanNhaHang.demo.enums.*;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -17,6 +19,6 @@ public class MonAnResponseDTO {
     private Double donGia;
     private String donViTinh;
     private String tenLoai;
-    private String trangThai;
+    private TrangThaiMonAn trangThai;
     private String urlHinhAnh;
 }

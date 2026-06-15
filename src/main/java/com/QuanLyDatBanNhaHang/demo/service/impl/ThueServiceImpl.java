@@ -57,7 +57,8 @@ public class ThueServiceImpl implements ThueService {
     }
 
     public void deleteThue(String maThue) {
-        thueRepository.deleteById(maThue);
+        Thue thue = thueRepository.findByMaThueIgnoreCase(maThue).orElseThrow(() -> new ResourceNotFoundException("Khong tim thay"));
+        thueRepository.delete(thue);
     }
 
     private ThueResponseDTO convertToResponseDTO(Thue thue) {

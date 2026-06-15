@@ -1,5 +1,7 @@
 package com.QuanLyDatBanNhaHang.demo.dto.response;
 
+import com.QuanLyDatBanNhaHang.demo.enums.*;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -20,5 +22,5 @@ public class KhuyenMaiResponseDTO {
     private LocalDate ngayBatDau;
     private LocalDate ngayKetThuc;
     private Double dieuKienToiThieu;
-    private String trangThai;
+    private TrangThaiKhuyenMai trangThai;
 }

@@ -59,7 +59,8 @@ public class KhachHangServiceImpl implements KhachHangService {
     }
 
     public void deleteKhachHang(String maKH) {
-        khachHangRepository.deleteById(maKH);
+        KhachHang khachHang = khachHangRepository.findByMaKHIgnoreCase(maKH).orElseThrow(() -> new ResourceNotFoundException("Khong tim thay"));
+        khachHangRepository.delete(khachHang);
     }
 
     private KhachHangResponseDTO convertToResponseDTO(KhachHang khachHang) {

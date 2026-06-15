@@ -1,5 +1,7 @@
 package com.QuanLyDatBanNhaHang.demo.dto.response;
 
+import com.QuanLyDatBanNhaHang.demo.enums.*;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -19,7 +21,7 @@ public class PhieuDatBanResponseDTO {
     private LocalDateTime thoiGianDen;
     private Integer soLuongNguoi;
     private String ghiChu;
-    private String trangThai;
+    private TrangThaiPhieuDatBan trangThai;
     private Double tienDatCoc;
 
     // Flatten fields cho KhachHang

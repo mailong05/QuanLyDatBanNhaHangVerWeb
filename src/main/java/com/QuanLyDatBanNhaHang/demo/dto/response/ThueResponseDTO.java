@@ -1,5 +1,7 @@
 package com.QuanLyDatBanNhaHang.demo.dto.response;
 
+import com.QuanLyDatBanNhaHang.demo.enums.*;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -15,5 +17,5 @@ public class ThueResponseDTO {
     private String maThue;
     private String tenThue;
     private Double thueSuat;
-    private String trangThai;
+    private TrangThaiThue trangThai;
 }

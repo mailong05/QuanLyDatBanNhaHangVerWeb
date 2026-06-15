@@ -63,7 +63,8 @@ public class NhanVienServiceImpl implements NhanVienService {
     }
 
     public void deleteNhanVien(String maNV) {
-        nhanVienRepository.deleteById(maNV);
+        NhanVien nhanVien = nhanVienRepository.findByMaNVIgnoreCase(maNV).orElseThrow(() -> new ResourceNotFoundException("Khong tim thay"));
+        nhanVienRepository.delete(nhanVien);
     }
 
     private NhanVienResponseDTO convertToResponseDTO(NhanVien nhanVien) {

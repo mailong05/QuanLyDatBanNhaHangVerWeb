@@ -12,7 +12,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Page;
 
 @Repository
-public interface HoaDonRepository extends JpaRepository<HoaDon, String> {
+public interface HoaDonRepository extends JpaRepository<HoaDon, Long> {
     @Query("SELECT DISTINCT h FROM HoaDon h " +
            "JOIN FETCH h.phieuDatBan p " +
            "JOIN FETCH h.nhanVien n " +

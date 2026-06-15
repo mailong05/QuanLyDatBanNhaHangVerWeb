@@ -1,5 +1,8 @@
 package com.QuanLyDatBanNhaHang.demo.dto.request;
 
+import com.QuanLyDatBanNhaHang.demo.enums.*;
+import jakarta.validation.constraints.Pattern;
+
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -23,11 +26,11 @@ public class MonAnUpdateRequestDTO {
 
     private String donViTinh;
 
-    @NotBlank(message = "Tên loại không được để trống")
+    @NotNull(message = "Tên loại không được để trống")
     private String tenLoai;
 
-    @NotBlank(message = "Trạng thái không được để trống")
-    private String trangThai;
+    @NotNull(message = "Trạng thái không được để trống")
+    private TrangThaiMonAn trangThai;
 
     private String urlHinhAnh;
 }

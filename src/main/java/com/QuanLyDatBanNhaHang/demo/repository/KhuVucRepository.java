@@ -12,7 +12,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Page;
 
 @Repository
-public interface KhuVucRepository extends JpaRepository<KhuVuc, String> {
+public interface KhuVucRepository extends JpaRepository<KhuVuc, Long> {
     
     Optional<KhuVuc> findByMaKhuVucIgnoreCase(String maKhuVuc);
     List<KhuVuc> findByTenKhuVucContainingIgnoreCase(String tenKhuVuc);

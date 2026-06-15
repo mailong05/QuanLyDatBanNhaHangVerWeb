@@ -37,7 +37,7 @@ public class TaiKhoanServiceImpl implements TaiKhoanService {
     }
 
     public TaiKhoanResponseDTO createTaiKhoan(TaiKhoanCreateRequestDTO requestDTO) {
-        NhanVien nhanVien = nhanVienRepository.findById(requestDTO.getMaNV())
+        NhanVien nhanVien = nhanVienRepository.findByMaNVIgnoreCase(requestDTO.getMaNV())
                 .orElseThrow(() -> new ResourceNotFoundException("Nhân viên không tồn tại"));
 
         // Normally you would hash the password here using BCrypt or similar
@@ -58,7 +58,7 @@ public class TaiKhoanServiceImpl implements TaiKhoanService {
         TaiKhoan taiKhoan = taiKhoanRepository.findByUsernameIgnoreCase(username)
                 .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy Tài Khoản với Username: " + username));
 
-        NhanVien nhanVien = nhanVienRepository.findById(requestDTO.getMaNV())
+        NhanVien nhanVien = nhanVienRepository.findByMaNVIgnoreCase(requestDTO.getMaNV())
                 .orElseThrow(() -> new ResourceNotFoundException("Nhân viên không tồn tại"));
 
         taiKhoan.setQuyenHan(requestDTO.getQuyenHan());
@@ -73,7 +73,8 @@ public class TaiKhoanServiceImpl implements TaiKhoanService {
     }
 
     public void deleteTaiKhoan(String username) {
-        taiKhoanRepository.deleteById(username);
+        TaiKhoan taiKhoan = taiKhoanRepository.findByUsernameIgnoreCase(username).orElseThrow(() -> new ResourceNotFoundException("Khong tim thay"));
+        taiKhoanRepository.delete(taiKhoan);
     }
 
     private TaiKhoanResponseDTO convertToResponseDTO(TaiKhoan taiKhoan) {

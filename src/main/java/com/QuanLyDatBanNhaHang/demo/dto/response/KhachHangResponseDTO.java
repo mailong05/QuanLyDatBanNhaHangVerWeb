@@ -1,5 +1,7 @@
 package com.QuanLyDatBanNhaHang.demo.dto.response;
 
+import com.QuanLyDatBanNhaHang.demo.enums.*;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -16,5 +18,6 @@ public class KhachHangResponseDTO {
     private String hoTen;
     private String sdt;
     private Integer diemTichLuy;
-    private String loaiThanhVien;
+    private LoaiThanhVienKhachHang loaiThanhVien;
+
 }

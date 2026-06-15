@@ -12,7 +12,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Page;
 
 @Repository
-public interface MonAnRepository extends JpaRepository<MonAn, String> {
+public interface MonAnRepository extends JpaRepository<MonAn, Long> {
     
     Optional<MonAn> findByMaMonIgnoreCase(String maMon);
     List<MonAn> findByTenMonContainingIgnoreCase(String tenMon);

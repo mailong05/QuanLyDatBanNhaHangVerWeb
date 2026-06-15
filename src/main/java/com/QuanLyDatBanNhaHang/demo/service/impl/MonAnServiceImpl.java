@@ -63,7 +63,8 @@ public class MonAnServiceImpl implements MonAnService {
     }
 
     public void deleteMonAn(String maMon) {
-        monAnRepository.deleteById(maMon);
+        MonAn monAn = monAnRepository.findByMaMonIgnoreCase(maMon).orElseThrow(() -> new ResourceNotFoundException("Khong tim thay"));
+        monAnRepository.delete(monAn);
     }
 
     private MonAnResponseDTO convertToResponseDTO(MonAn monAn) {

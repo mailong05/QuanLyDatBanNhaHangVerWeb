@@ -36,7 +36,7 @@ public class CaLamViecServiceImpl implements CaLamViecService {
     }
 
     public CaLamViecResponseDTO createCaLamViec(CaLamViecCreateRequestDTO requestDTO) {
-        NhanVien nhanVien = nhanVienRepository.findById(requestDTO.getMaNV())
+        NhanVien nhanVien = nhanVienRepository.findByMaNVIgnoreCase(requestDTO.getMaNV())
                 .orElseThrow(() -> new ResourceNotFoundException("Nhân viên không tồn tại"));
 
         CaLamViec caLamViec = CaLamViec.builder()
@@ -58,7 +58,7 @@ public class CaLamViecServiceImpl implements CaLamViecService {
         CaLamViec caLamViec = caLamViecRepository.findByMaCaIgnoreCase(maCa)
                 .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy Ca Làm Việc với mã: " + maCa));
 
-        NhanVien nhanVien = nhanVienRepository.findById(requestDTO.getMaNV())
+        NhanVien nhanVien = nhanVienRepository.findByMaNVIgnoreCase(requestDTO.getMaNV())
                 .orElseThrow(() -> new ResourceNotFoundException("Nhân viên không tồn tại"));
 
         caLamViec.setThoiGianVaoCa(requestDTO.getThoiGianVaoCa());
@@ -74,7 +74,8 @@ public class CaLamViecServiceImpl implements CaLamViecService {
     }
 
     public void deleteCaLamViec(String maCa) {
-        caLamViecRepository.deleteById(maCa);
+        CaLamViec caLamViec = caLamViecRepository.findByMaCaIgnoreCase(maCa).orElseThrow(() -> new ResourceNotFoundException("Khong tim thay"));
+        caLamViecRepository.delete(caLamViec);
     }
 
     private CaLamViecResponseDTO convertToResponseDTO(CaLamViec caLamViec) {

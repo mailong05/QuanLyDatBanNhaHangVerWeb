@@ -1,5 +1,8 @@
 package com.QuanLyDatBanNhaHang.demo.dto.request;
 
+import com.QuanLyDatBanNhaHang.demo.enums.*;
+import jakarta.validation.constraints.Pattern;
+
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -18,6 +21,7 @@ import java.time.LocalDateTime;
 public class CaLamViecCreateRequestDTO {
     
     @NotBlank(message = "Mã ca không được để trống")
+    @Pattern(regexp = "^[a-zA-Z0-9_]+$", message = "Mã không hợp lệ")
     private String maCa;
 
     @NotNull(message = "Thời gian vào ca không được để trống")
@@ -30,11 +34,12 @@ public class CaLamViecCreateRequestDTO {
 
     private Double tienKetCa;
 
-    @NotBlank(message = "Trạng thái không được để trống")
-    private String trangThai;
+    @NotNull(message = "Trạng thái không được để trống")
+    private TrangThaiCaLamViec trangThai;
 
     private String ghiChu;
 
     @NotBlank(message = "Mã nhân viên không được để trống")
+    @Pattern(regexp = "^[a-zA-Z0-9_]+$", message = "Mã không hợp lệ")
     private String maNV;
 }

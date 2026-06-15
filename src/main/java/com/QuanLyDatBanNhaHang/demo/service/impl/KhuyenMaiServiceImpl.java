@@ -63,7 +63,8 @@ public class KhuyenMaiServiceImpl implements KhuyenMaiService {
     }
 
     public void deleteKhuyenMai(String maKM) {
-        khuyenMaiRepository.deleteById(maKM);
+        KhuyenMai khuyenMai = khuyenMaiRepository.findByMaKMIgnoreCase(maKM).orElseThrow(() -> new ResourceNotFoundException("Khong tim thay"));
+        khuyenMaiRepository.delete(khuyenMai);
     }
 
     private KhuyenMaiResponseDTO convertToResponseDTO(KhuyenMai khuyenMai) {

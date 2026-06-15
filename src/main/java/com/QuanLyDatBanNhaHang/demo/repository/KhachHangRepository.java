@@ -12,7 +12,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Page;
 
 @Repository
-public interface KhachHangRepository extends JpaRepository<KhachHang, String> {
+public interface KhachHangRepository extends JpaRepository<KhachHang, Long> {
     
     Optional<KhachHang> findByMaKHIgnoreCase(String maKH);
     Optional<KhachHang> findBySdt(String sdt);

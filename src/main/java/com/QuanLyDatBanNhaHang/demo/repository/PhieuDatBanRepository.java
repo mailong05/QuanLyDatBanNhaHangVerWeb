@@ -12,7 +12,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Page;
 
 @Repository
-public interface PhieuDatBanRepository extends JpaRepository<PhieuDatBan, String> {
+public interface PhieuDatBanRepository extends JpaRepository<PhieuDatBan, Long> {
     @Query("SELECT p FROM PhieuDatBan p LEFT JOIN FETCH p.khachHang k JOIN FETCH p.nhanVien n")
     List<PhieuDatBan> findAllWithRelations();
     @Query(value = "SELECT x FROM PhieuDatBan x LEFT JOIN FETCH x.khachHang k JOIN FETCH x.nhanVien n", countQuery = "SELECT count(x) FROM PhieuDatBan x")

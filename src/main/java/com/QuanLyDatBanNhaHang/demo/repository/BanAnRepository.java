@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface BanAnRepository extends JpaRepository<BanAn, String> {
+public interface BanAnRepository extends JpaRepository<BanAn, Long> {
     
     @Query("SELECT b FROM BanAn b JOIN FETCH b.khuVuc k")
     List<BanAn> findAllWithRelations();

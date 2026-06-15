@@ -37,7 +37,7 @@ public class BanAnServiceImpl implements BanAnService {
     }
 
     public BanAnResponseDTO createBanAn(BanAnCreateRequestDTO requestDTO) {
-        KhuVuc khuVuc = khuVucRepository.findById(requestDTO.getMaKhuVuc())
+        KhuVuc khuVuc = khuVucRepository.findByMaKhuVucIgnoreCase(requestDTO.getMaKhuVuc())
                 .orElseThrow(() -> new ResourceNotFoundException("Khu vực không tồn tại"));
 
         BanAn banAn = BanAn.builder()
@@ -56,7 +56,7 @@ public class BanAnServiceImpl implements BanAnService {
         BanAn banAn = banAnRepository.findByMaBanIgnoreCase(maBan)
                 .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy Bàn Ăn với mã: " + maBan));
 
-        KhuVuc khuVuc = khuVucRepository.findById(requestDTO.getMaKhuVuc())
+        KhuVuc khuVuc = khuVucRepository.findByMaKhuVucIgnoreCase(requestDTO.getMaKhuVuc())
                 .orElseThrow(() -> new ResourceNotFoundException("Khu vực không tồn tại"));
 
         banAn.setSoGhe(requestDTO.getSoGhe());
@@ -69,7 +69,8 @@ public class BanAnServiceImpl implements BanAnService {
     }
 
     public void deleteBanAn(String maBan) {
-        banAnRepository.deleteById(maBan);
+        BanAn banAn = banAnRepository.findByMaBanIgnoreCase(maBan).orElseThrow(() -> new ResourceNotFoundException("Khong tim thay"));
+        banAnRepository.delete(banAn);
     }
 
     private BanAnResponseDTO convertToResponseDTO(BanAn banAn) {

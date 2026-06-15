@@ -12,7 +12,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Page;
 
 @Repository
-public interface TaiKhoanRepository extends JpaRepository<TaiKhoan, String> {
+public interface TaiKhoanRepository extends JpaRepository<TaiKhoan, Long> {
     @Query("SELECT t FROM TaiKhoan t JOIN FETCH t.nhanVien n")
     List<TaiKhoan> findAllWithRelations();
     @Query(value = "SELECT x FROM TaiKhoan x JOIN FETCH x.nhanVien n", countQuery = "SELECT count(x) FROM TaiKhoan x")

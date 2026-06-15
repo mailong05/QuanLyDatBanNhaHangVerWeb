@@ -1,5 +1,7 @@
 package com.QuanLyDatBanNhaHang.demo.dto.response;
 
+import com.QuanLyDatBanNhaHang.demo.enums.*;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -26,8 +28,8 @@ public class HoaDonResponseDTO {
     private Double tongTienGoc;
     private Double tienGiamGia;
     private Double tongThanhToan;
-    private String phuongThucTT;
-    private String trangThaiThanhToan;
+    private PhuongThucThanhToanHoaDon phuongThucTT;
+    private TrangThaiThanhToanHoaDon trangThaiThanhToan;
     
     // Flatten fields
     private String maPhieuDat;

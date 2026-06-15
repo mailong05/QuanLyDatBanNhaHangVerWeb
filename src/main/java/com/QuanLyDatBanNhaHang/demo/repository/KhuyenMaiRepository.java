@@ -12,7 +12,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Page;
 
 @Repository
-public interface KhuyenMaiRepository extends JpaRepository<KhuyenMai, String> {
+public interface KhuyenMaiRepository extends JpaRepository<KhuyenMai, Long> {
     
     Optional<KhuyenMai> findByMaKMIgnoreCase(String maKM);
     List<KhuyenMai> findByTenKMContainingIgnoreCase(String tenKM);

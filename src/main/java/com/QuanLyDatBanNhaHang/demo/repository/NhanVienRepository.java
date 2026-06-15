@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface NhanVienRepository extends JpaRepository<NhanVien, String> {
+public interface NhanVienRepository extends JpaRepository<NhanVien, Long> {
     
     Optional<NhanVien> findByMaNVIgnoreCase(String maNV);
     

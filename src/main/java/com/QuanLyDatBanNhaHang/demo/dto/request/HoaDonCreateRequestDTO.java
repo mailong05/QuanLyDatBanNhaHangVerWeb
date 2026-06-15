@@ -1,6 +1,10 @@
 package com.QuanLyDatBanNhaHang.demo.dto.request;
 
+import com.QuanLyDatBanNhaHang.demo.enums.*;
+import jakarta.validation.constraints.Pattern;
+
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -18,6 +22,7 @@ import java.time.LocalTime;
 public class HoaDonCreateRequestDTO {
     
     @NotBlank(message = "Mã hóa đơn không được để trống")
+    @Pattern(regexp = "^[a-zA-Z0-9_]+$", message = "Mã không hợp lệ")
     private String maHD;
 
     private Double thueSuat;
@@ -30,17 +35,19 @@ public class HoaDonCreateRequestDTO {
     private Double tongTienGoc;
     private Double tienGiamGia;
     private Double tongThanhToan;
-    private String phuongThucTT;
+    private PhuongThucThanhToanHoaDon phuongThucTT;
 
-    @NotBlank(message = "Trạng thái thanh toán không được để trống")
-    private String trangThaiThanhToan;
+    @NotNull(message = "Trạng thái thanh toán không được để trống")
+    private TrangThaiThanhToanHoaDon trangThaiThanhToan;
 
     @NotBlank(message = "Mã phiếu đặt không được để trống")
+    @Pattern(regexp = "^[a-zA-Z0-9_]+$", message = "Mã không hợp lệ")
     private String maPhieuDat;
 
     @NotBlank(message = "Mã nhân viên không được để trống")
     private String maNV;
 
+    @Pattern(regexp = "^[a-zA-Z0-9_]+$", message = "Mã không hợp lệ")
     private String maKM;
 
     @NotBlank(message = "Mã thuế không được để trống")

@@ -12,7 +12,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Page;
 
 @Repository
-public interface CaLamViecRepository extends JpaRepository<CaLamViec, String> {
+public interface CaLamViecRepository extends JpaRepository<CaLamViec, Long> {
     @Query("SELECT c FROM CaLamViec c JOIN FETCH c.nhanVien n")
     List<CaLamViec> findAllWithRelations();
     @Query(value = "SELECT x FROM CaLamViec x JOIN FETCH x.nhanVien n", countQuery = "SELECT count(x) FROM CaLamViec x")
