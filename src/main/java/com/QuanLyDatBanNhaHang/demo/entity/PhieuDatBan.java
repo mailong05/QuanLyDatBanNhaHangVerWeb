@@ -1,6 +1,9 @@
 package com.QuanLyDatBanNhaHang.demo.entity;
 
 import jakarta.persistence.*;
+import com.QuanLyDatBanNhaHang.demo.enums.*;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -17,10 +20,13 @@ import java.util.List;
 @Builder
 @Entity
 @Table(name = "PhieuDatBan")
-public class PhieuDatBan {
-
+public class PhieuDatBan extends BaseEntity {
     @Id
-    @Column(name = "maPhieuDat", length = 20)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+
+    @Column(name = "maPhieuDat", length = 20, unique = true, nullable = false, updatable = false)
     private String maPhieuDat;
 
     @Column(name = "ngayLapPhieu")
@@ -35,8 +41,9 @@ public class PhieuDatBan {
     @Column(name = "ghiChu", length = 255)
     private String ghiChu;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "trangThai", nullable = false, length = 50)
-    private String trangThai;
+    private TrangThaiPhieuDatBan trangThai;
 
     @Column(name = "tienDatCoc")
     private Double tienDatCoc;

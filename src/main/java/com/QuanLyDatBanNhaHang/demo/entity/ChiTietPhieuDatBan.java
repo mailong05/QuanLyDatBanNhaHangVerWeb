@@ -1,6 +1,9 @@
 package com.QuanLyDatBanNhaHang.demo.entity;
 
 import jakarta.persistence.*;
+import com.QuanLyDatBanNhaHang.demo.enums.*;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -16,7 +19,7 @@ import java.io.Serializable;
 @Builder
 @Entity
 @Table(name = "ChiTietPhieuDatBan")
-public class ChiTietPhieuDatBan {
+public class ChiTietPhieuDatBan extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -1,6 +1,9 @@
 package com.QuanLyDatBanNhaHang.demo.entity;
 
 import jakarta.persistence.*;
+import com.QuanLyDatBanNhaHang.demo.enums.*;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -16,10 +19,13 @@ import java.util.List;
 @Builder
 @Entity
 @Table(name = "BanAn")
-public class BanAn {
-
+public class BanAn extends BaseEntity {
     @Id
-    @Column(name = "maBan", length = 20)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+
+    @Column(name = "maBan", length = 20, unique = true, nullable = false, updatable = false)
     private String maBan;
 
     @Column(name = "soGhe")
@@ -28,8 +34,9 @@ public class BanAn {
     @Column(name = "viTri", length = 100)
     private String viTri;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "trangThai", nullable = false, length = 50)
-    private String trangThai;
+    private TrangThaiBanAn trangThai;
 
     // SỬA Ở ĐÂY
     @ManyToOne(fetch = FetchType.LAZY)

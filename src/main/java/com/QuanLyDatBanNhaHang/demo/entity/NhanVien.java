@@ -1,6 +1,9 @@
 package com.QuanLyDatBanNhaHang.demo.entity;
 
 import jakarta.persistence.*;
+import com.QuanLyDatBanNhaHang.demo.enums.*;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -17,10 +20,13 @@ import java.util.List;
 @Builder
 @Entity
 @Table(name = "NhanVien")
-public class NhanVien {
-
+public class NhanVien extends BaseEntity {
     @Id
-    @Column(name = "maNV", length = 20)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+
+    @Column(name = "maNV", length = 20, unique = true, nullable = false, updatable = false)
     private String maNV;
 
     @Column(name = "hoTen", nullable = false, length = 100)
@@ -29,8 +35,9 @@ public class NhanVien {
     @Column(name = "sdt", length = 15)
     private String sdt;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "chucVu", nullable = false, length = 50)
-    private String chucVu;
+    private ChucVuNhanVien chucVu;
 
     @Column(name = "ngayVaoLam", nullable = false)
     private LocalDate ngayVaoLam;
@@ -38,8 +45,9 @@ public class NhanVien {
     @Column(name = "luongCoBan", nullable = false)
     private Double luongCoBan;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "trangThai", nullable = false, length = 50)
-    private String trangThai;
+    private TrangThaiNhanVien trangThai;
 
     @OneToMany(mappedBy = "nhanVien", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<CaLamViec> caLamViecs;
