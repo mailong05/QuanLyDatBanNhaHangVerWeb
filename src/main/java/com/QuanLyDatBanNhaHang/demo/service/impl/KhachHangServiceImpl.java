@@ -108,8 +108,8 @@ public class KhachHangServiceImpl implements KhachHangService {
     private String generateNextMaKH() {
         Integer maxMa = khachHangRepository.findMaxMaKH();
         if (maxMa == null) {
-            return String.format("KH%04d", 1);
+            return String.format("KH%06d", 1);
         }
-        return String.format("KH%04d", maxMa + 1);
+        return String.format("KH%06d", maxMa + 1);
     }
 }

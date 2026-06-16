@@ -51,9 +51,9 @@ public class MonAnServiceImpl implements MonAnService {
     private String generateNextMaMon() {
         Integer maxMa = monAnRepository.findMaxMaMon();
         if (maxMa == null) {
-            return String.format("MA%03d", 1);
+            return String.format("MA%06d", 1);
         }
-        return String.format("MA%03d", maxMa + 1);
+        return String.format("MA%06d", maxMa + 1);
     }
 
     @Override

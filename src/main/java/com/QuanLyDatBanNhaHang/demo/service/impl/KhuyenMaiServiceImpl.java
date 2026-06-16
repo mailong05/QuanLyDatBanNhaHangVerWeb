@@ -86,8 +86,8 @@ public class KhuyenMaiServiceImpl implements KhuyenMaiService {
     private String generateNextMaKM() {
         Integer maxMa = khuyenMaiRepository.findMaxMaKM();
         if (maxMa == null) {
-            return String.format("KM%04d", 1);
+            return String.format("KM%06d", 1);
         }
-        return String.format("KM%04d", maxMa + 1);
+        return String.format("KM%06d", maxMa + 1);
     }
 }

@@ -48,9 +48,9 @@ public class ThueServiceImpl implements ThueService {
     private String generateNextMaThue() {
         Integer maxMa = thueRepository.findMaxMaThue();
         if (maxMa == null) {
-            return String.format("TH%02d", 1);
+            return String.format("TH%06d", 1);
         }
-        return String.format("TH%02d", maxMa + 1);
+        return String.format("TH%06d", maxMa + 1);
     }
 
     @Override

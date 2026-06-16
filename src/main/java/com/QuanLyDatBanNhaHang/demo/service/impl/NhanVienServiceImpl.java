@@ -112,8 +112,8 @@ public class NhanVienServiceImpl implements NhanVienService {
     private String generateNextMaNV() {
         Integer maxMa = nhanVienRepository.findMaxMaNV();
         if (maxMa == null) {
-            return String.format("NV%04d", 1);
+            return String.format("NV%06d", 1);
         }
-        return String.format("NV%04d", maxMa + 1);
+        return String.format("NV%06d", maxMa + 1);
     }
 }

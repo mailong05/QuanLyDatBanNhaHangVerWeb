@@ -88,8 +88,8 @@ public class CaLamViecServiceImpl implements CaLamViecService {
     private String generateNextMaCa() {
         Integer maxMa = caLamViecRepository.findMaxMaCa();
         if (maxMa == null) {
-            return String.format("CA%03d", 1);
+            return String.format("CA%06d", 1);
         }
-        return String.format("CA%03d", maxMa + 1);
+        return String.format("CA%06d", maxMa + 1);
     }
 }

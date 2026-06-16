@@ -15,6 +15,6 @@ public interface CaLamViecRepository extends JpaRepository<CaLamViec, Long> {
     Optional<CaLamViec> findByMaCaIgnoreCase(String maCa);
     
     Page<CaLamViec> findByTenCaContainingIgnoreCase(String tenCa, Pageable pageable);
-    @Query("SELECT MAX(CAST(SUBSTRING(c.maCa, 3, 3) AS int)) FROM CaLamViec c")
+    @Query("SELECT MAX(CAST(SUBSTRING(c.maCa, 3, 6) AS int)) FROM CaLamViec c")
     Integer findMaxMaCa();
 }

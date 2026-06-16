@@ -12,6 +12,6 @@ import java.util.Optional;
 @Repository
 public interface KhuyenMaiRepository extends JpaRepository<KhuyenMai, Long> {
     Optional<KhuyenMai> findByMaKMIgnoreCase(String maKM);
-    @Query("SELECT MAX(CAST(SUBSTRING(km.maKM, 3, 4) AS int)) FROM KhuyenMai km")
+    @Query("SELECT MAX(CAST(SUBSTRING(km.maKM, 3, 6) AS int)) FROM KhuyenMai km")
     Integer findMaxMaKM();
 }

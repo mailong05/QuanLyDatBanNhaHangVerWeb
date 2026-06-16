@@ -14,6 +14,6 @@ public interface ThueRepository extends JpaRepository<Thue, Long> {
     Optional<Thue> findByMaThueIgnoreCase(String maThue);
 
     
-    @Query("SELECT MAX(CAST(SUBSTRING(t.maThue, 3, 2) AS int)) FROM Thue t")
+    @Query("SELECT MAX(CAST(SUBSTRING(t.maThue, 3, 6) AS int)) FROM Thue t")
     Integer findMaxMaThue();
 }

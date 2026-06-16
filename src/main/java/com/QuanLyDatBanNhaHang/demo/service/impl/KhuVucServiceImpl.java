@@ -71,8 +71,8 @@ public class KhuVucServiceImpl implements KhuVucService {
     private String generateNextMaKhuVuc() {
         Integer maxMa = khuVucRepository.findMaxMaKhuVuc();
         if (maxMa == null) {
-            return String.format("KV%02d", 1);
+            return String.format("KV%06d", 1);
         }
-        return String.format("KV%02d", maxMa + 1);
+        return String.format("KV%06d", maxMa + 1);
     }
 }

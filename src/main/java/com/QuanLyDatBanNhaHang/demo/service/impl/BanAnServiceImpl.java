@@ -96,8 +96,8 @@ public class BanAnServiceImpl implements BanAnService {
     private String generateNextMaBan() {
         Integer maxMa = banAnRepository.findMaxMaBan();
         if (maxMa == null) {
-            return String.format("BA%04d", 1);
+            return String.format("BA%06d", 1);
         }
-        return String.format("BA%04d", maxMa + 1);
+        return String.format("BA%06d", maxMa + 1);
     }
 }

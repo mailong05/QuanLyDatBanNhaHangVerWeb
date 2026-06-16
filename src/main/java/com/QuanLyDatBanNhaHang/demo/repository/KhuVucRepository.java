@@ -15,6 +15,6 @@ public interface KhuVucRepository extends JpaRepository<KhuVuc, Long> {
     Page<KhuVuc> findByTenKhuVucContainingIgnoreCase(String tenKhuVuc, Pageable pageable);
 
     
-    @Query("SELECT MAX(CAST(SUBSTRING(kv.maKhuVuc, 3, 2) AS int)) FROM KhuVuc kv")
+    @Query("SELECT MAX(CAST(SUBSTRING(kv.maKhuVuc, 3, 6) AS int)) FROM KhuVuc kv")
     Integer findMaxMaKhuVuc();
 }
