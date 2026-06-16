@@ -10,6 +10,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import com.QuanLyDatBanNhaHang.demo.dto.response.ApiResponse;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -20,28 +21,28 @@ public class PhanCongController {
     private final PhanCongService phanCongService;
 
     @GetMapping
-    public ResponseEntity<Page<PhanCongResponseDTO>> getAllPhanCong(Pageable pageable) {
-        return ResponseEntity.ok(phanCongService.getAllPhanCong(pageable));
+    public ResponseEntity<ApiResponse<Page<PhanCongResponseDTO>>> getAllPhanCong(Pageable pageable) {
+        return ResponseEntity.ok(ApiResponse.success(phanCongService.getAllPhanCong(pageable)));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<PhanCongResponseDTO> getPhanCongById(@PathVariable Long id) {
-        return ResponseEntity.ok(phanCongService.getPhanCongById(id));
+    public ResponseEntity<ApiResponse<PhanCongResponseDTO>> getPhanCongById(@PathVariable Long id) {
+        return ResponseEntity.ok(ApiResponse.success(phanCongService.getPhanCongById(id)));
     }
 
     @PostMapping
-    public ResponseEntity<PhanCongResponseDTO> createPhanCong(@Valid @RequestBody PhanCongCreateRequestDTO requestDTO) {
-        return new ResponseEntity<>(phanCongService.createPhanCong(requestDTO), HttpStatus.CREATED);
+    public ResponseEntity<ApiResponse<PhanCongResponseDTO>> createPhanCong(@Valid @RequestBody PhanCongCreateRequestDTO requestDTO) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success(phanCongService.createPhanCong(requestDTO)));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<PhanCongResponseDTO> updatePhanCong(@PathVariable Long id, @Valid @RequestBody PhanCongUpdateRequestDTO requestDTO) {
-        return ResponseEntity.ok(phanCongService.updatePhanCong(id, requestDTO));
+    public ResponseEntity<ApiResponse<PhanCongResponseDTO>> updatePhanCong(@PathVariable Long id, @Valid @RequestBody PhanCongUpdateRequestDTO requestDTO) {
+        return ResponseEntity.ok(ApiResponse.success(phanCongService.updatePhanCong(id, requestDTO)));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deletePhanCong(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<Void>> deletePhanCong(@PathVariable Long id) {
         phanCongService.deletePhanCong(id);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok(ApiResponse.success("Xóa thành công", null));
     }
 }

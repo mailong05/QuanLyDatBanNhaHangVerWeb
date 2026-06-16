@@ -10,6 +10,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import com.QuanLyDatBanNhaHang.demo.dto.response.ApiResponse;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -20,28 +21,28 @@ public class TaiKhoanController {
     private final TaiKhoanService taiKhoanService;
 
     @GetMapping
-    public ResponseEntity<Page<TaiKhoanResponseDTO>> getAllTaiKhoan(Pageable pageable) {
-        return ResponseEntity.ok(taiKhoanService.getAllTaiKhoan(pageable));
+    public ResponseEntity<ApiResponse<Page<TaiKhoanResponseDTO>>> getAllTaiKhoan(Pageable pageable) {
+        return ResponseEntity.ok(ApiResponse.success(taiKhoanService.getAllTaiKhoan(pageable)));
     }
 
     @GetMapping("/{username}")
-    public ResponseEntity<TaiKhoanResponseDTO> getTaiKhoanById(@PathVariable String username) {
-        return ResponseEntity.ok(taiKhoanService.getTaiKhoanByUsername(username));
+    public ResponseEntity<ApiResponse<TaiKhoanResponseDTO>> getTaiKhoanById(@PathVariable String username) {
+        return ResponseEntity.ok(ApiResponse.success(taiKhoanService.getTaiKhoanByUsername(username)));
     }
 
     @PostMapping
-    public ResponseEntity<TaiKhoanResponseDTO> createTaiKhoan(@Valid @RequestBody TaiKhoanCreateRequestDTO requestDTO) {
-        return new ResponseEntity<>(taiKhoanService.createTaiKhoan(requestDTO), HttpStatus.CREATED);
+    public ResponseEntity<ApiResponse<TaiKhoanResponseDTO>> createTaiKhoan(@Valid @RequestBody TaiKhoanCreateRequestDTO requestDTO) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success(taiKhoanService.createTaiKhoan(requestDTO)));
     }
 
     @PutMapping("/{username}")
-    public ResponseEntity<TaiKhoanResponseDTO> updateTaiKhoan(@PathVariable String username, @Valid @RequestBody TaiKhoanUpdateRequestDTO requestDTO) {
-        return ResponseEntity.ok(taiKhoanService.updateTaiKhoan(username, requestDTO));
+    public ResponseEntity<ApiResponse<TaiKhoanResponseDTO>> updateTaiKhoan(@PathVariable String username, @Valid @RequestBody TaiKhoanUpdateRequestDTO requestDTO) {
+        return ResponseEntity.ok(ApiResponse.success(taiKhoanService.updateTaiKhoan(username, requestDTO)));
     }
 
     @DeleteMapping("/{username}")
-    public ResponseEntity<Void> deleteTaiKhoan(@PathVariable String username) {
+    public ResponseEntity<ApiResponse<Void>> deleteTaiKhoan(@PathVariable String username) {
         taiKhoanService.deleteTaiKhoan(username);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok(ApiResponse.success("Xóa thành công", null));
     }
 }

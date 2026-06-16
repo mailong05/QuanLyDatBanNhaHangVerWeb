@@ -10,6 +10,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import com.QuanLyDatBanNhaHang.demo.dto.response.ApiResponse;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -20,28 +21,28 @@ public class CaLamViecController {
     private final CaLamViecService caLamViecService;
 
     @GetMapping
-    public ResponseEntity<Page<CaLamViecResponseDTO>> getAllCaLamViec(Pageable pageable) {
-        return ResponseEntity.ok(caLamViecService.getAllCaLamViec(pageable));
+    public ResponseEntity<ApiResponse<Page<CaLamViecResponseDTO>>> getAllCaLamViec(Pageable pageable) {
+        return ResponseEntity.ok(ApiResponse.success(caLamViecService.getAllCaLamViec(pageable)));
     }
 
     @GetMapping("/{maCa}")
-    public ResponseEntity<CaLamViecResponseDTO> getCaLamViecById(@PathVariable String maCa) {
-        return ResponseEntity.ok(caLamViecService.getCaLamViecByMa(maCa));
+    public ResponseEntity<ApiResponse<CaLamViecResponseDTO>> getCaLamViecById(@PathVariable String maCa) {
+        return ResponseEntity.ok(ApiResponse.success(caLamViecService.getCaLamViecByMa(maCa)));
     }
 
     @PostMapping
-    public ResponseEntity<CaLamViecResponseDTO> createCaLamViec(@Valid @RequestBody CaLamViecCreateRequestDTO requestDTO) {
-        return new ResponseEntity<>(caLamViecService.createCaLamViec(requestDTO), HttpStatus.CREATED);
+    public ResponseEntity<ApiResponse<CaLamViecResponseDTO>> createCaLamViec(@Valid @RequestBody CaLamViecCreateRequestDTO requestDTO) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success(caLamViecService.createCaLamViec(requestDTO)));
     }
 
     @PutMapping("/{maCa}")
-    public ResponseEntity<CaLamViecResponseDTO> updateCaLamViec(@PathVariable String maCa, @Valid @RequestBody CaLamViecUpdateRequestDTO requestDTO) {
-        return ResponseEntity.ok(caLamViecService.updateCaLamViec(maCa, requestDTO));
+    public ResponseEntity<ApiResponse<CaLamViecResponseDTO>> updateCaLamViec(@PathVariable String maCa, @Valid @RequestBody CaLamViecUpdateRequestDTO requestDTO) {
+        return ResponseEntity.ok(ApiResponse.success(caLamViecService.updateCaLamViec(maCa, requestDTO)));
     }
 
     @DeleteMapping("/{maCa}")
-    public ResponseEntity<Void> deleteCaLamViec(@PathVariable String maCa) {
+    public ResponseEntity<ApiResponse<Void>> deleteCaLamViec(@PathVariable String maCa) {
         caLamViecService.deleteCaLamViec(maCa);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok(ApiResponse.success("Xóa thành công", null));
     }
 }

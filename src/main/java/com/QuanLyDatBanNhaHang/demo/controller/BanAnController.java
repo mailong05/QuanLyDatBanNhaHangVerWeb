@@ -10,6 +10,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import com.QuanLyDatBanNhaHang.demo.dto.response.ApiResponse;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -20,28 +21,28 @@ public class BanAnController {
     private final BanAnService banAnService;
 
     @GetMapping
-    public ResponseEntity<Page<BanAnResponseDTO>> getAllBanAn(Pageable pageable) {
-        return ResponseEntity.ok(banAnService.getAllBanAn(pageable));
+    public ResponseEntity<ApiResponse<Page<BanAnResponseDTO>>> getAllBanAn(Pageable pageable) {
+        return ResponseEntity.ok(ApiResponse.success(banAnService.getAllBanAn(pageable)));
     }
 
     @GetMapping("/{maBan}")
-    public ResponseEntity<BanAnResponseDTO> getBanAnById(@PathVariable String maBan) {
-        return ResponseEntity.ok(banAnService.getBanAnByMa(maBan));
+    public ResponseEntity<ApiResponse<BanAnResponseDTO>> getBanAnById(@PathVariable String maBan) {
+        return ResponseEntity.ok(ApiResponse.success(banAnService.getBanAnByMa(maBan)));
     }
 
     @PostMapping
-    public ResponseEntity<BanAnResponseDTO> createBanAn(@Valid @RequestBody BanAnCreateRequestDTO requestDTO) {
-        return new ResponseEntity<>(banAnService.createBanAn(requestDTO), HttpStatus.CREATED);
+    public ResponseEntity<ApiResponse<BanAnResponseDTO>> createBanAn(@Valid @RequestBody BanAnCreateRequestDTO requestDTO) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success(banAnService.createBanAn(requestDTO)));
     }
 
     @PutMapping("/{maBan}")
-    public ResponseEntity<BanAnResponseDTO> updateBanAn(@PathVariable String maBan, @Valid @RequestBody BanAnUpdateRequestDTO requestDTO) {
-        return ResponseEntity.ok(banAnService.updateBanAn(maBan, requestDTO));
+    public ResponseEntity<ApiResponse<BanAnResponseDTO>> updateBanAn(@PathVariable String maBan, @Valid @RequestBody BanAnUpdateRequestDTO requestDTO) {
+        return ResponseEntity.ok(ApiResponse.success(banAnService.updateBanAn(maBan, requestDTO)));
     }
 
     @DeleteMapping("/{maBan}")
-    public ResponseEntity<Void> deleteBanAn(@PathVariable String maBan) {
+    public ResponseEntity<ApiResponse<Void>> deleteBanAn(@PathVariable String maBan) {
         banAnService.deleteBanAn(maBan);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok(ApiResponse.success("Xóa thành công", null));
     }
 }

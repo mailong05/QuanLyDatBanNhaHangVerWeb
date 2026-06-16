@@ -10,6 +10,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import com.QuanLyDatBanNhaHang.demo.dto.response.ApiResponse;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -20,28 +21,28 @@ public class ThueController {
     private final ThueService thueService;
 
     @GetMapping
-    public ResponseEntity<Page<ThueResponseDTO>> getAllThue(Pageable pageable) {
-        return ResponseEntity.ok(thueService.getAllThue(pageable));
+    public ResponseEntity<ApiResponse<Page<ThueResponseDTO>>> getAllThue(Pageable pageable) {
+        return ResponseEntity.ok(ApiResponse.success(thueService.getAllThue(pageable)));
     }
 
     @GetMapping("/{maThue}")
-    public ResponseEntity<ThueResponseDTO> getThueById(@PathVariable String maThue) {
-        return ResponseEntity.ok(thueService.getThueByMa(maThue));
+    public ResponseEntity<ApiResponse<ThueResponseDTO>> getThueById(@PathVariable String maThue) {
+        return ResponseEntity.ok(ApiResponse.success(thueService.getThueByMa(maThue)));
     }
 
     @PostMapping
-    public ResponseEntity<ThueResponseDTO> createThue(@Valid @RequestBody ThueCreateRequestDTO requestDTO) {
-        return new ResponseEntity<>(thueService.createThue(requestDTO), HttpStatus.CREATED);
+    public ResponseEntity<ApiResponse<ThueResponseDTO>> createThue(@Valid @RequestBody ThueCreateRequestDTO requestDTO) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success(thueService.createThue(requestDTO)));
     }
 
     @PutMapping("/{maThue}")
-    public ResponseEntity<ThueResponseDTO> updateThue(@PathVariable String maThue, @Valid @RequestBody ThueUpdateRequestDTO requestDTO) {
-        return ResponseEntity.ok(thueService.updateThue(maThue, requestDTO));
+    public ResponseEntity<ApiResponse<ThueResponseDTO>> updateThue(@PathVariable String maThue, @Valid @RequestBody ThueUpdateRequestDTO requestDTO) {
+        return ResponseEntity.ok(ApiResponse.success(thueService.updateThue(maThue, requestDTO)));
     }
 
     @DeleteMapping("/{maThue}")
-    public ResponseEntity<Void> deleteThue(@PathVariable String maThue) {
+    public ResponseEntity<ApiResponse<Void>> deleteThue(@PathVariable String maThue) {
         thueService.deleteThue(maThue);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok(ApiResponse.success("Xóa thành công", null));
     }
 }

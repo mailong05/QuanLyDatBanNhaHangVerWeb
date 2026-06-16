@@ -10,6 +10,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import com.QuanLyDatBanNhaHang.demo.dto.response.ApiResponse;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -20,28 +21,28 @@ public class HoaDonController {
     private final HoaDonService hoaDonService;
 
     @GetMapping
-    public ResponseEntity<Page<HoaDonResponseDTO>> getAllHoaDon(Pageable pageable) {
-        return ResponseEntity.ok(hoaDonService.getAllHoaDon(pageable));
+    public ResponseEntity<ApiResponse<Page<HoaDonResponseDTO>>> getAllHoaDon(Pageable pageable) {
+        return ResponseEntity.ok(ApiResponse.success(hoaDonService.getAllHoaDon(pageable)));
     }
 
     @GetMapping("/{maHD}")
-    public ResponseEntity<HoaDonResponseDTO> getHoaDonById(@PathVariable String maHD) {
-        return ResponseEntity.ok(hoaDonService.getHoaDonByMa(maHD));
+    public ResponseEntity<ApiResponse<HoaDonResponseDTO>> getHoaDonById(@PathVariable String maHD) {
+        return ResponseEntity.ok(ApiResponse.success(hoaDonService.getHoaDonByMa(maHD)));
     }
 
     @PostMapping
-    public ResponseEntity<HoaDonResponseDTO> createHoaDon(@Valid @RequestBody HoaDonCreateRequestDTO requestDTO) {
-        return new ResponseEntity<>(hoaDonService.createHoaDon(requestDTO), HttpStatus.CREATED);
+    public ResponseEntity<ApiResponse<HoaDonResponseDTO>> createHoaDon(@Valid @RequestBody HoaDonCreateRequestDTO requestDTO) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success(hoaDonService.createHoaDon(requestDTO)));
     }
 
     @PutMapping("/{maHD}")
-    public ResponseEntity<HoaDonResponseDTO> updateHoaDon(@PathVariable String maHD, @Valid @RequestBody HoaDonUpdateRequestDTO requestDTO) {
-        return ResponseEntity.ok(hoaDonService.updateHoaDon(maHD, requestDTO));
+    public ResponseEntity<ApiResponse<HoaDonResponseDTO>> updateHoaDon(@PathVariable String maHD, @Valid @RequestBody HoaDonUpdateRequestDTO requestDTO) {
+        return ResponseEntity.ok(ApiResponse.success(hoaDonService.updateHoaDon(maHD, requestDTO)));
     }
 
     @DeleteMapping("/{maHD}")
-    public ResponseEntity<Void> deleteHoaDon(@PathVariable String maHD) {
+    public ResponseEntity<ApiResponse<Void>> deleteHoaDon(@PathVariable String maHD) {
         hoaDonService.deleteHoaDon(maHD);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok(ApiResponse.success("Xóa thành công", null));
     }
 }

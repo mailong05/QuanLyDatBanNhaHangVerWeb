@@ -10,6 +10,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import com.QuanLyDatBanNhaHang.demo.dto.response.ApiResponse;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -20,28 +21,28 @@ public class KhuyenMaiController {
     private final KhuyenMaiService khuyenMaiService;
 
     @GetMapping
-    public ResponseEntity<Page<KhuyenMaiResponseDTO>> getAllKhuyenMai(Pageable pageable) {
-        return ResponseEntity.ok(khuyenMaiService.getAllKhuyenMai(pageable));
+    public ResponseEntity<ApiResponse<Page<KhuyenMaiResponseDTO>>> getAllKhuyenMai(Pageable pageable) {
+        return ResponseEntity.ok(ApiResponse.success(khuyenMaiService.getAllKhuyenMai(pageable)));
     }
 
     @GetMapping("/{maKM}")
-    public ResponseEntity<KhuyenMaiResponseDTO> getKhuyenMaiById(@PathVariable String maKM) {
-        return ResponseEntity.ok(khuyenMaiService.getKhuyenMaiByMa(maKM));
+    public ResponseEntity<ApiResponse<KhuyenMaiResponseDTO>> getKhuyenMaiById(@PathVariable String maKM) {
+        return ResponseEntity.ok(ApiResponse.success(khuyenMaiService.getKhuyenMaiByMa(maKM)));
     }
 
     @PostMapping
-    public ResponseEntity<KhuyenMaiResponseDTO> createKhuyenMai(@Valid @RequestBody KhuyenMaiCreateRequestDTO requestDTO) {
-        return new ResponseEntity<>(khuyenMaiService.createKhuyenMai(requestDTO), HttpStatus.CREATED);
+    public ResponseEntity<ApiResponse<KhuyenMaiResponseDTO>> createKhuyenMai(@Valid @RequestBody KhuyenMaiCreateRequestDTO requestDTO) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success(khuyenMaiService.createKhuyenMai(requestDTO)));
     }
 
     @PutMapping("/{maKM}")
-    public ResponseEntity<KhuyenMaiResponseDTO> updateKhuyenMai(@PathVariable String maKM, @Valid @RequestBody KhuyenMaiUpdateRequestDTO requestDTO) {
-        return ResponseEntity.ok(khuyenMaiService.updateKhuyenMai(maKM, requestDTO));
+    public ResponseEntity<ApiResponse<KhuyenMaiResponseDTO>> updateKhuyenMai(@PathVariable String maKM, @Valid @RequestBody KhuyenMaiUpdateRequestDTO requestDTO) {
+        return ResponseEntity.ok(ApiResponse.success(khuyenMaiService.updateKhuyenMai(maKM, requestDTO)));
     }
 
     @DeleteMapping("/{maKM}")
-    public ResponseEntity<Void> deleteKhuyenMai(@PathVariable String maKM) {
+    public ResponseEntity<ApiResponse<Void>> deleteKhuyenMai(@PathVariable String maKM) {
         khuyenMaiService.deleteKhuyenMai(maKM);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok(ApiResponse.success("Xóa thành công", null));
     }
 }

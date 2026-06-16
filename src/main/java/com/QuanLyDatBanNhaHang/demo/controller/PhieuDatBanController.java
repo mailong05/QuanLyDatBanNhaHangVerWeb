@@ -10,6 +10,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import com.QuanLyDatBanNhaHang.demo.dto.response.ApiResponse;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -20,28 +21,28 @@ public class PhieuDatBanController {
     private final PhieuDatBanService phieuDatBanService;
 
     @GetMapping
-    public ResponseEntity<Page<PhieuDatBanResponseDTO>> getAllPhieuDatBan(Pageable pageable) {
-        return ResponseEntity.ok(phieuDatBanService.getAllPhieuDatBan(pageable));
+    public ResponseEntity<ApiResponse<Page<PhieuDatBanResponseDTO>>> getAllPhieuDatBan(Pageable pageable) {
+        return ResponseEntity.ok(ApiResponse.success(phieuDatBanService.getAllPhieuDatBan(pageable)));
     }
 
     @GetMapping("/{maPhieuDat}")
-    public ResponseEntity<PhieuDatBanResponseDTO> getPhieuDatBanById(@PathVariable String maPhieuDat) {
-        return ResponseEntity.ok(phieuDatBanService.getPhieuDatBanByMa(maPhieuDat));
+    public ResponseEntity<ApiResponse<PhieuDatBanResponseDTO>> getPhieuDatBanById(@PathVariable String maPhieuDat) {
+        return ResponseEntity.ok(ApiResponse.success(phieuDatBanService.getPhieuDatBanByMa(maPhieuDat)));
     }
 
     @PostMapping
-    public ResponseEntity<PhieuDatBanResponseDTO> createPhieuDatBan(@Valid @RequestBody PhieuDatBanCreateRequestDTO requestDTO) {
-        return new ResponseEntity<>(phieuDatBanService.createPhieuDatBan(requestDTO), HttpStatus.CREATED);
+    public ResponseEntity<ApiResponse<PhieuDatBanResponseDTO>> createPhieuDatBan(@Valid @RequestBody PhieuDatBanCreateRequestDTO requestDTO) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success(phieuDatBanService.createPhieuDatBan(requestDTO)));
     }
 
     @PutMapping("/{maPhieuDat}")
-    public ResponseEntity<PhieuDatBanResponseDTO> updatePhieuDatBan(@PathVariable String maPhieuDat, @Valid @RequestBody PhieuDatBanUpdateRequestDTO requestDTO) {
-        return ResponseEntity.ok(phieuDatBanService.updatePhieuDatBan(maPhieuDat, requestDTO));
+    public ResponseEntity<ApiResponse<PhieuDatBanResponseDTO>> updatePhieuDatBan(@PathVariable String maPhieuDat, @Valid @RequestBody PhieuDatBanUpdateRequestDTO requestDTO) {
+        return ResponseEntity.ok(ApiResponse.success(phieuDatBanService.updatePhieuDatBan(maPhieuDat, requestDTO)));
     }
 
     @DeleteMapping("/{maPhieuDat}")
-    public ResponseEntity<Void> deletePhieuDatBan(@PathVariable String maPhieuDat) {
+    public ResponseEntity<ApiResponse<Void>> deletePhieuDatBan(@PathVariable String maPhieuDat) {
         phieuDatBanService.deletePhieuDatBan(maPhieuDat);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok(ApiResponse.success("Xóa thành công", null));
     }
 }

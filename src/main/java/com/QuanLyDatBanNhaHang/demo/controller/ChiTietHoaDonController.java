@@ -8,6 +8,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import com.QuanLyDatBanNhaHang.demo.dto.response.ApiResponse;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -20,28 +21,28 @@ public class ChiTietHoaDonController {
     private final ChiTietHoaDonService chiTietHoaDonService;
 
     @GetMapping
-    public ResponseEntity<List<ChiTietHoaDonResponseDTO>> getAllChiTietHoaDon() {
-        return ResponseEntity.ok(chiTietHoaDonService.getAllChiTietHoaDon());
+    public ResponseEntity<ApiResponse<List<ChiTietHoaDonResponseDTO>>> getAllChiTietHoaDon() {
+        return ResponseEntity.ok(ApiResponse.success(chiTietHoaDonService.getAllChiTietHoaDon()));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ChiTietHoaDonResponseDTO> getChiTietHoaDonById(@PathVariable Long id) {
-        return ResponseEntity.ok(chiTietHoaDonService.getChiTietHoaDonById(id));
+    public ResponseEntity<ApiResponse<ChiTietHoaDonResponseDTO>> getChiTietHoaDonById(@PathVariable Long id) {
+        return ResponseEntity.ok(ApiResponse.success(chiTietHoaDonService.getChiTietHoaDonById(id)));
     }
 
     @PostMapping
-    public ResponseEntity<ChiTietHoaDonResponseDTO> createChiTietHoaDon(@Valid @RequestBody ChiTietHoaDonCreateRequestDTO requestDTO) {
-        return new ResponseEntity<>(chiTietHoaDonService.createChiTietHoaDon(requestDTO), HttpStatus.CREATED);
+    public ResponseEntity<ApiResponse<ChiTietHoaDonResponseDTO>> createChiTietHoaDon(@Valid @RequestBody ChiTietHoaDonCreateRequestDTO requestDTO) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success(chiTietHoaDonService.createChiTietHoaDon(requestDTO)));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ChiTietHoaDonResponseDTO> updateChiTietHoaDon(@PathVariable Long id, @Valid @RequestBody ChiTietHoaDonUpdateRequestDTO requestDTO) {
-        return ResponseEntity.ok(chiTietHoaDonService.updateChiTietHoaDon(id, requestDTO));
+    public ResponseEntity<ApiResponse<ChiTietHoaDonResponseDTO>> updateChiTietHoaDon(@PathVariable Long id, @Valid @RequestBody ChiTietHoaDonUpdateRequestDTO requestDTO) {
+        return ResponseEntity.ok(ApiResponse.success(chiTietHoaDonService.updateChiTietHoaDon(id, requestDTO)));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteChiTietHoaDon(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<Void>> deleteChiTietHoaDon(@PathVariable Long id) {
         chiTietHoaDonService.deleteChiTietHoaDon(id);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok(ApiResponse.success("Xóa thành công", null));
     }
 }

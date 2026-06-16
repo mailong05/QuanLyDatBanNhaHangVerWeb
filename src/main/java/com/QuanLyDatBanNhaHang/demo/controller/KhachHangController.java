@@ -10,6 +10,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import com.QuanLyDatBanNhaHang.demo.dto.response.ApiResponse;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -20,33 +21,33 @@ public class KhachHangController {
     private final KhachHangService khachHangService;
 
     @GetMapping
-    public ResponseEntity<Page<KhachHangResponseDTO>> getAllKhachHang(
+    public ResponseEntity<ApiResponse<Page<KhachHangResponseDTO>>> getAllKhachHang(
             @RequestParam(required = false) String search,
             Pageable pageable) {
         if (search != null && !search.trim().isEmpty()) {
-            return ResponseEntity.ok(khachHangService.searchKhachHang(search, pageable));
+            return ResponseEntity.ok(ApiResponse.success(khachHangService.searchKhachHang(search, pageable)));
         }
-        return ResponseEntity.ok(khachHangService.getAllKhachHang(pageable));
+        return ResponseEntity.ok(ApiResponse.success(khachHangService.getAllKhachHang(pageable)));
     }
 
     @GetMapping("/{maKH}")
-    public ResponseEntity<KhachHangResponseDTO> getKhachHangById(@PathVariable String maKH) {
-        return ResponseEntity.ok(khachHangService.getKhachHangByMa(maKH));
+    public ResponseEntity<ApiResponse<KhachHangResponseDTO>> getKhachHangById(@PathVariable String maKH) {
+        return ResponseEntity.ok(ApiResponse.success(khachHangService.getKhachHangByMa(maKH)));
     }
 
     @PostMapping
-    public ResponseEntity<KhachHangResponseDTO> createKhachHang(@Valid @RequestBody KhachHangCreateRequestDTO requestDTO) {
-        return new ResponseEntity<>(khachHangService.createKhachHang(requestDTO), HttpStatus.CREATED);
+    public ResponseEntity<ApiResponse<KhachHangResponseDTO>> createKhachHang(@Valid @RequestBody KhachHangCreateRequestDTO requestDTO) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success(khachHangService.createKhachHang(requestDTO)));
     }
 
     @PutMapping("/{maKH}")
-    public ResponseEntity<KhachHangResponseDTO> updateKhachHang(@PathVariable String maKH, @Valid @RequestBody KhachHangUpdateRequestDTO requestDTO) {
-        return ResponseEntity.ok(khachHangService.updateKhachHang(maKH, requestDTO));
+    public ResponseEntity<ApiResponse<KhachHangResponseDTO>> updateKhachHang(@PathVariable String maKH, @Valid @RequestBody KhachHangUpdateRequestDTO requestDTO) {
+        return ResponseEntity.ok(ApiResponse.success(khachHangService.updateKhachHang(maKH, requestDTO)));
     }
 
     @DeleteMapping("/{maKH}")
-    public ResponseEntity<Void> deleteKhachHang(@PathVariable String maKH) {
+    public ResponseEntity<ApiResponse<Void>> deleteKhachHang(@PathVariable String maKH) {
         khachHangService.deleteKhachHang(maKH);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok(ApiResponse.success("Xóa thành công", null));
     }
 }
