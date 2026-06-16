@@ -22,6 +22,8 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
+    private final CustomAccessDeniedHandler customAccessDeniedHandler;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -37,19 +39,23 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
             .csrf(AbstractHttpConfigurer::disable)
+            .exceptionHandling(ex -> ex
+                .authenticationEntryPoint(customAuthenticationEntryPoint)
+                .accessDeniedHandler(customAccessDeniedHandler)
+            )
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
                 // Public APIs
-                .requestMatchers("/api/auth/**", "/error", "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
+                .requestMatchers("/api/auth/**", "/error", "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html","/api/web/booking").permitAll()
                 .requestMatchers("/api/monan/**", "/api/banan/**", "/api/khuvuc/**").permitAll()
                 
-                // Quyền hạn cho STAFF (và ADMIN)
+                // Quyen han cho STAFF (va ADMIN)
                 .requestMatchers("/api/hoadon/**", "/api/giaoca/**", "/api/phieudatban/**").hasAnyRole("ADMIN", "NHAN_VIEN")
                 
-                // Quyền hạn chỉ dành cho ADMIN
+                // Quyen han chi danh cho ADMIN
                 .requestMatchers("/api/nhanvien/**", "/api/taikhoan/**").hasRole("ADMIN")
                 
-                // Tất cả request khác đều phải xác thực
+                // Tat ca request khac deu phai xac thuc
                 .anyRequest().authenticated()
             )
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
