@@ -94,16 +94,10 @@ public class BanAnServiceImpl implements BanAnService {
     }
 
     private String generateNextMaBan() {
-        String maxMa = banAnRepository.findMaxMaBan();
-        if (maxMa == null || maxMa.isEmpty()) {
+        Integer maxMa = banAnRepository.findMaxMaBan();
+        if (maxMa == null) {
             return String.format("BA%04d", 1);
         }
-        try {
-            String numberPart = maxMa.substring(2);
-            int currentNum = Integer.parseInt(numberPart);
-            return String.format("BA%04d", currentNum + 1);
-        } catch (Exception e) {
-            return String.format("BA%04d", 1);
-        }
+        return String.format("BA%04d", maxMa + 1);
     }
 }

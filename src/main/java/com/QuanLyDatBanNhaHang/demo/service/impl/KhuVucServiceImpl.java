@@ -69,16 +69,10 @@ public class KhuVucServiceImpl implements KhuVucService {
 
 
     private String generateNextMaKhuVuc() {
-        String maxMa = khuVucRepository.findMaxMaKhuVuc();
-        if (maxMa == null || maxMa.isEmpty()) {
+        Integer maxMa = khuVucRepository.findMaxMaKhuVuc();
+        if (maxMa == null) {
             return String.format("KV%02d", 1);
         }
-        try {
-            String numberPart = maxMa.substring(2);
-            int currentNum = Integer.parseInt(numberPart);
-            return String.format("KV%02d", currentNum + 1);
-        } catch (Exception e) {
-            return String.format("KV%02d", 1);
-        }
+        return String.format("KV%02d", maxMa + 1);
     }
 }

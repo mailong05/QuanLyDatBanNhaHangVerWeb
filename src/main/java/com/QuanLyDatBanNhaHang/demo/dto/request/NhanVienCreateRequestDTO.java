@@ -27,6 +27,8 @@ public class NhanVienCreateRequestDTO {
 
     private String sdt;
 
+    private String email;
+
     @NotNull(message = "Chức vụ không được để trống")
     private ChucVuNhanVien chucVu;
 

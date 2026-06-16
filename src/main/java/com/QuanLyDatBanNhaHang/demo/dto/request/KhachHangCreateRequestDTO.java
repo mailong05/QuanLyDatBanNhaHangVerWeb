@@ -25,6 +25,8 @@ public class KhachHangCreateRequestDTO {
     @NotBlank(message = "Số điện thoại không được để trống")
     private String sdt;
 
+    private String email;
+
     @NotNull(message = "Loại thành viên không được để trống")
     private LoaiThanhVienKhachHang loaiThanhVien;
 

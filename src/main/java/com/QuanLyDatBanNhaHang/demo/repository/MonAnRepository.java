@@ -15,6 +15,6 @@ public interface MonAnRepository extends JpaRepository<MonAn, Long> {
     Page<MonAn> findByTenMonContainingIgnoreCase(String tenMon, Pageable pageable);
 
     
-    @Query("SELECT MAX(m.maMon) FROM MonAn m")
-    String findMaxMaMon();
+    @Query("SELECT MAX(CAST(SUBSTRING(m.maMon, 3, 3) AS int)) FROM MonAn m")
+    Integer findMaxMaMon();
 }

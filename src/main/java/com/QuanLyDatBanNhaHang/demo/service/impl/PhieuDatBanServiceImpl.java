@@ -33,6 +33,7 @@ import java.util.stream.Collectors;
 public class PhieuDatBanServiceImpl implements PhieuDatBanService {
 
     private final PhieuDatBanRepository phieuDatBanRepository;
+    private final com.QuanLyDatBanNhaHang.demo.repository.ChiTietPhieuDatBanRepository chiTietPhieuDatBanRepository;
     private final KhachHangRepository khachHangRepository;
     private final NhanVienRepository nhanVienRepository;
     private final BanAnRepository banAnRepository;
@@ -52,6 +53,21 @@ public class PhieuDatBanServiceImpl implements PhieuDatBanService {
     @Override
     @Transactional
     public PhieuDatBanResponseDTO createPhieuDatBan(PhieuDatBanCreateRequestDTO requestDTO) {
+
+        if (requestDTO.getThoiGianDen().isBefore(LocalDateTime.now().plusMinutes(30))) {
+            throw new IllegalArgumentException("Thời gian đến phải lớn hơn thời gian hiện tại ít nhất 30 phút.");
+        }
+
+        if (requestDTO.getChiTiets() != null) {
+            LocalDateTime start = requestDTO.getThoiGianDen().minusHours(2);
+            LocalDateTime end = requestDTO.getThoiGianDen().plusHours(2);
+            for (var ct : requestDTO.getChiTiets()) {
+                if (!chiTietPhieuDatBanRepository.findConflictingBookings(ct.getMaBan(), start, end, null).isEmpty()) {
+                    throw new IllegalArgumentException("Bàn " + ct.getMaBan() + " đã được đặt trong khoảng thời gian này.");
+                }
+            }
+        }
+
 
 
         KhachHang kh = khachHangRepository.findByMaKHIgnoreCase(requestDTO.getMaKH())
@@ -98,6 +114,21 @@ public class PhieuDatBanServiceImpl implements PhieuDatBanService {
     public PhieuDatBanResponseDTO updatePhieuDatBan(String maPhieuDat, PhieuDatBanUpdateRequestDTO requestDTO) {
         PhieuDatBan pdb = phieuDatBanRepository.findByMaPhieuDatIgnoreCaseWithRelations(maPhieuDat)
                 .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy Phiếu đặt với mã: " + maPhieuDat));
+
+        if (requestDTO.getThoiGianDen().isBefore(LocalDateTime.now().plusMinutes(30))) {
+            throw new IllegalArgumentException("Thời gian đến phải lớn hơn thời gian hiện tại ít nhất 30 phút.");
+        }
+
+        if (requestDTO.getChiTiets() != null) {
+            LocalDateTime start = requestDTO.getThoiGianDen().minusHours(2);
+            LocalDateTime end = requestDTO.getThoiGianDen().plusHours(2);
+            for (var ct : requestDTO.getChiTiets()) {
+                if (!chiTietPhieuDatBanRepository.findConflictingBookings(ct.getMaBan(), start, end, pdb.getId()).isEmpty()) {
+                    throw new IllegalArgumentException("Bàn " + ct.getMaBan() + " đã được đặt trong khoảng thời gian này.");
+                }
+            }
+        }
+
 
         pdb.setThoiGianDen(requestDTO.getThoiGianDen());
         pdb.setSoLuongNguoi(requestDTO.getSoLuongNguoi());
@@ -161,16 +192,10 @@ public class PhieuDatBanServiceImpl implements PhieuDatBanService {
     }
 
     private String generateNextMaPhieuDat() {
-        String maxMa = phieuDatBanRepository.findMaxMaPhieuDat();
-        if (maxMa == null || maxMa.isEmpty()) {
+        Integer maxMa = phieuDatBanRepository.findMaxMaPhieuDat();
+        if (maxMa == null) {
             return String.format("PDB%06d", 1);
         }
-        try {
-            String numberPart = maxMa.substring(3);
-            int currentNum = Integer.parseInt(numberPart);
-            return String.format("PDB%06d", currentNum + 1);
-        } catch (Exception e) {
-            return String.format("PDB%06d", 1);
-        }
+        return String.format("PDB%06d", maxMa + 1);
     }
 }

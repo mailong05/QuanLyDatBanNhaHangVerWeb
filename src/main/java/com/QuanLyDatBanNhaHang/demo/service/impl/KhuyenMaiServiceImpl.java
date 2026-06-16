@@ -84,16 +84,10 @@ public class KhuyenMaiServiceImpl implements KhuyenMaiService {
     }
 
     private String generateNextMaKM() {
-        String maxMa = khuyenMaiRepository.findMaxMaKM();
-        if (maxMa == null || maxMa.isEmpty()) {
+        Integer maxMa = khuyenMaiRepository.findMaxMaKM();
+        if (maxMa == null) {
             return String.format("KM%04d", 1);
         }
-        try {
-            String numberPart = maxMa.substring(2);
-            int currentNum = Integer.parseInt(numberPart);
-            return String.format("KM%04d", currentNum + 1);
-        } catch (Exception e) {
-            return String.format("KM%04d", 1);
-        }
+        return String.format("KM%04d", maxMa + 1);
     }
 }

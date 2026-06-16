@@ -37,6 +37,9 @@ public class NhanVien extends BaseEntity {
     @Column(name = "sdt", length = 15)
     private String sdt;
 
+    @Column(name = "email", length = 100)
+    private String email;
+
     @Enumerated(EnumType.STRING)
     @Column(name = "chucVu", nullable = false, length = 50)
     private ChucVuNhanVien chucVu;

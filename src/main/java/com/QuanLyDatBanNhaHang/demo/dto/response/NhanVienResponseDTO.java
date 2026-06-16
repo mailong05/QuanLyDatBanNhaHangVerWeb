@@ -20,6 +20,8 @@ public class NhanVienResponseDTO {
     private String maNV;
     private String hoTen;
     private String sdt;
+
+    private String email;
     private ChucVuNhanVien chucVu;
     private LocalDate ngayVaoLam;
     private Double luongCoBan;

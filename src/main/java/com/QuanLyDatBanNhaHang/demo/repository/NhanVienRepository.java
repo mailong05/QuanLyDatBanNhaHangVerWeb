@@ -27,6 +27,6 @@ public interface NhanVienRepository extends JpaRepository<NhanVien, Long> {
                    "OR LOWER(n.sdt) LIKE LOWER(CONCAT('%', :keyword, '%'))",
            countQuery = "SELECT COUNT(n) FROM NhanVien n WHERE LOWER(n.hoTen) LIKE LOWER(CONCAT('%', :keyword, '%')) OR LOWER(n.sdt) LIKE LOWER(CONCAT('%', :keyword, '%'))")
     Page<NhanVien> searchByHoTenOrSdt(@Param("keyword") String keyword, Pageable pageable);
-    @Query("SELECT MAX(n.maNV) FROM NhanVien n")
-    String findMaxMaNV();
+    @Query("SELECT MAX(CAST(SUBSTRING(n.maNV, 3, 4) AS int)) FROM NhanVien n")
+    Integer findMaxMaNV();
 }

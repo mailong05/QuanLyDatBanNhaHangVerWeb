@@ -34,6 +34,11 @@ public class CaLamViecServiceImpl implements CaLamViecService {
     @Override
     public CaLamViecResponseDTO createCaLamViec(CaLamViecCreateRequestDTO requestDTO) {
 
+        if (requestDTO.getGioKetThuc().isBefore(requestDTO.getGioBatDau())) {
+            throw new IllegalArgumentException("Giờ kết thúc phải lớn hơn giờ bắt đầu.");
+        }
+
+
         
         CaLamViec caLamViec = CaLamViec.builder()
                 .maCa(generateNextMaCa())
@@ -48,6 +53,11 @@ public class CaLamViecServiceImpl implements CaLamViecService {
 
     @Override
     public CaLamViecResponseDTO updateCaLamViec(String maCa, CaLamViecUpdateRequestDTO requestDTO) {
+
+        if (requestDTO.getGioKetThuc().isBefore(requestDTO.getGioBatDau())) {
+            throw new IllegalArgumentException("Giờ kết thúc phải lớn hơn giờ bắt đầu.");
+        }
+
         CaLamViec ca = caLamViecRepository.findByMaCaIgnoreCase(maCa)
                 .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy Ca Làm Việc với mã: " + maCa));
                 
@@ -76,16 +86,10 @@ public class CaLamViecServiceImpl implements CaLamViecService {
     }
 
     private String generateNextMaCa() {
-        String maxMa = caLamViecRepository.findMaxMaCa();
-        if (maxMa == null || maxMa.isEmpty()) {
+        Integer maxMa = caLamViecRepository.findMaxMaCa();
+        if (maxMa == null) {
             return String.format("CA%03d", 1);
         }
-        try {
-            String numberPart = maxMa.substring(2);
-            int currentNum = Integer.parseInt(numberPart);
-            return String.format("CA%03d", currentNum + 1);
-        } catch (Exception e) {
-            return String.format("CA%03d", 1);
-        }
+        return String.format("CA%03d", maxMa + 1);
     }
 }

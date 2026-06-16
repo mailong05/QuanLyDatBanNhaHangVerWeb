@@ -46,17 +46,11 @@ public class ThueServiceImpl implements ThueService {
     }
 
     private String generateNextMaThue() {
-        String maxMa = thueRepository.findMaxMaThue();
-        if (maxMa == null || maxMa.isEmpty()) {
-            return String.format("TH%04d", 1);
+        Integer maxMa = thueRepository.findMaxMaThue();
+        if (maxMa == null) {
+            return String.format("TH%02d", 1);
         }
-        try {
-            String numberPart = maxMa.substring(2);
-            int currentNum = Integer.parseInt(numberPart);
-            return String.format("TH%04d", currentNum + 1);
-        } catch (Exception e) {
-            return String.format("TH%04d", 1);
-        }
+        return String.format("TH%02d", maxMa + 1);
     }
 
     @Override

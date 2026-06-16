@@ -21,6 +21,6 @@ public interface BanAnRepository extends JpaRepository<BanAn, Long> {
     @Query(value = "SELECT b FROM BanAn b LEFT JOIN FETCH b.khuVuc", 
            countQuery = "SELECT COUNT(b) FROM BanAn b")
     Page<BanAn> findAllWithRelations(Pageable pageable);
-    @Query("SELECT MAX(b.maBan) FROM BanAn b")
-    String findMaxMaBan();
+    @Query("SELECT MAX(CAST(SUBSTRING(b.maBan, 3, 4) AS int)) FROM BanAn b")
+    Integer findMaxMaBan();
 }

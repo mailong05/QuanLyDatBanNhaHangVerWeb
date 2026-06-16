@@ -36,6 +36,9 @@ public class KhachHang extends BaseEntity {
     @Column(name = "sdt", nullable = false, length = 15)
     private String sdt;
 
+    @Column(name = "email", length = 100)
+    private String email;
+
     @Column(name = "diemTichLuy")
     private Integer diemTichLuy;
 

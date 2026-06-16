@@ -52,6 +52,7 @@ public class NhanVienServiceImpl implements NhanVienService {
                 .maNV(generateNextMaNV())
                 .hoTen(requestDTO.getHoTen())
                 .sdt(requestDTO.getSdt())
+                .email(requestDTO.getEmail())
                 .chucVu(requestDTO.getChucVu())
                 .ngayVaoLam(requestDTO.getNgayVaoLam())
                 .luongCoBan(requestDTO.getLuongCoBan())
@@ -75,6 +76,7 @@ public class NhanVienServiceImpl implements NhanVienService {
 
         nv.setHoTen(requestDTO.getHoTen());
         nv.setSdt(requestDTO.getSdt());
+        nv.setEmail(requestDTO.getEmail());
         nv.setChucVu(requestDTO.getChucVu());
         nv.setNgayVaoLam(requestDTO.getNgayVaoLam());
         nv.setLuongCoBan(requestDTO.getLuongCoBan());
@@ -97,6 +99,7 @@ public class NhanVienServiceImpl implements NhanVienService {
                 .maNV(nv.getMaNV())
                 .hoTen(nv.getHoTen())
                 .sdt(nv.getSdt())
+                .email(nv.getEmail())
                 .chucVu(nv.getChucVu())
                 .ngayVaoLam(nv.getNgayVaoLam())
                 .luongCoBan(nv.getLuongCoBan())
@@ -107,16 +110,10 @@ public class NhanVienServiceImpl implements NhanVienService {
     }
 
     private String generateNextMaNV() {
-        String maxMa = nhanVienRepository.findMaxMaNV();
-        if (maxMa == null || maxMa.isEmpty()) {
+        Integer maxMa = nhanVienRepository.findMaxMaNV();
+        if (maxMa == null) {
             return String.format("NV%04d", 1);
         }
-        try {
-            String numberPart = maxMa.substring(2);
-            int currentNum = Integer.parseInt(numberPart);
-            return String.format("NV%04d", currentNum + 1);
-        } catch (Exception e) {
-            return String.format("NV%04d", 1);
-        }
+        return String.format("NV%04d", maxMa + 1);
     }
 }

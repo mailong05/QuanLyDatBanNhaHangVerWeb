@@ -17,6 +17,8 @@ public class KhachHangResponseDTO {
     private String maKH;
     private String hoTen;
     private String sdt;
+
+    private String email;
     private Integer diemTichLuy;
     private LoaiThanhVienKhachHang loaiThanhVien;
     

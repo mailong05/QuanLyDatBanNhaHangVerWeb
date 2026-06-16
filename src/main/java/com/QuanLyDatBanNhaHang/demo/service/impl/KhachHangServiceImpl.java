@@ -52,6 +52,7 @@ public class KhachHangServiceImpl implements KhachHangService {
                 .maKH(generateNextMaKH())
                 .hoTen(requestDTO.getHoTen())
                 .sdt(requestDTO.getSdt())
+                .email(requestDTO.getEmail())
                 .loaiThanhVien(requestDTO.getLoaiThanhVien())
                 .diemTichLuy(0) // Default when creating
                 .taiKhoan(tk)
@@ -73,6 +74,7 @@ public class KhachHangServiceImpl implements KhachHangService {
 
         kh.setHoTen(requestDTO.getHoTen());
         kh.setSdt(requestDTO.getSdt());
+        kh.setEmail(requestDTO.getEmail());
         kh.setLoaiThanhVien(requestDTO.getLoaiThanhVien());
         if (requestDTO.getDiemTichLuy() != null) {
             kh.setDiemTichLuy(requestDTO.getDiemTichLuy());
@@ -95,6 +97,7 @@ public class KhachHangServiceImpl implements KhachHangService {
                 .maKH(kh.getMaKH())
                 .hoTen(kh.getHoTen())
                 .sdt(kh.getSdt())
+                .email(kh.getEmail())
                 .diemTichLuy(kh.getDiemTichLuy())
                 .loaiThanhVien(kh.getLoaiThanhVien())
                 .username(kh.getTaiKhoan() != null ? kh.getTaiKhoan().getUsername() : null)
@@ -103,16 +106,10 @@ public class KhachHangServiceImpl implements KhachHangService {
     }
 
     private String generateNextMaKH() {
-        String maxMa = khachHangRepository.findMaxMaKH();
-        if (maxMa == null || maxMa.isEmpty()) {
+        Integer maxMa = khachHangRepository.findMaxMaKH();
+        if (maxMa == null) {
             return String.format("KH%04d", 1);
         }
-        try {
-            String numberPart = maxMa.substring(2);
-            int currentNum = Integer.parseInt(numberPart);
-            return String.format("KH%04d", currentNum + 1);
-        } catch (Exception e) {
-            return String.format("KH%04d", 1);
-        }
+        return String.format("KH%04d", maxMa + 1);
     }
 }

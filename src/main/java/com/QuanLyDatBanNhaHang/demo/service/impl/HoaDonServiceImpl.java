@@ -31,6 +31,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.time.LocalDate;
 import java.util.stream.Collectors;
 
 @Service
@@ -72,6 +73,17 @@ public class HoaDonServiceImpl implements HoaDonService {
         if (requestDTO.getMaKM() != null && !requestDTO.getMaKM().isBlank()) {
             km = khuyenMaiRepository.findByMaKMIgnoreCase(requestDTO.getMaKM())
                     .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy Khuyến mãi: " + requestDTO.getMaKM()));
+        }
+
+        
+        if (km != null) {
+            LocalDate ngayTao = LocalDate.now();
+            if (ngayTao.isBefore(km.getNgayBatDau()) || ngayTao.isAfter(km.getNgayKetThuc())) {
+                throw new IllegalArgumentException("Khuyến mãi không nằm trong thời gian áp dụng.");
+            }
+            if (requestDTO.getTongTienGoc() < km.getDieuKienToiThieu()) {
+                throw new IllegalArgumentException("Chưa đạt điều kiện tối thiểu để áp dụng khuyến mãi.");
+            }
         }
 
         HoaDon hd = HoaDon.builder()
@@ -141,6 +153,17 @@ public class HoaDonServiceImpl implements HoaDonService {
         hd.setPhuongThucTT(requestDTO.getPhuongThucTT());
         hd.setTrangThaiThanhToan(requestDTO.getTrangThaiThanhToan());
         hd.setThue(thue);
+        
+        if (km != null) {
+            LocalDate ngayTao = LocalDate.now();
+            if (ngayTao.isBefore(km.getNgayBatDau()) || ngayTao.isAfter(km.getNgayKetThuc())) {
+                throw new IllegalArgumentException("Khuyến mãi không nằm trong thời gian áp dụng.");
+            }
+            if (requestDTO.getTongTienGoc() < km.getDieuKienToiThieu()) {
+                throw new IllegalArgumentException("Chưa đạt điều kiện tối thiểu để áp dụng khuyến mãi.");
+            }
+        }
+
         hd.setKhuyenMai(km);
 
         if (requestDTO.getChiTiets() != null) {
@@ -213,16 +236,10 @@ public class HoaDonServiceImpl implements HoaDonService {
     }
 
     private String generateNextMaHD() {
-        String maxMa = hoaDonRepository.findMaxMaHD();
-        if (maxMa == null || maxMa.isEmpty()) {
+        Integer maxMa = hoaDonRepository.findMaxMaHD();
+        if (maxMa == null) {
             return String.format("HD%06d", 1);
         }
-        try {
-            String numberPart = maxMa.substring(2);
-            int currentNum = Integer.parseInt(numberPart);
-            return String.format("HD%06d", currentNum + 1);
-        } catch (Exception e) {
-            return String.format("HD%06d", 1);
-        }
+        return String.format("HD%06d", maxMa + 1);
     }
 }
