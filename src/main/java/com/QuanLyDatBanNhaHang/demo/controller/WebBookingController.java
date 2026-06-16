@@ -5,6 +5,7 @@ import com.QuanLyDatBanNhaHang.demo.service.WebBookingService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import com.QuanLyDatBanNhaHang.demo.dto.response.ApiResponse;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -15,8 +16,8 @@ public class WebBookingController {
     private final WebBookingService webBookingService;
 
     @PostMapping
-    public ResponseEntity<?> createBooking(@Valid @RequestBody WebBookingRequestDTO request) {
+    public ResponseEntity<ApiResponse<String>> createBooking(@Valid @RequestBody WebBookingRequestDTO request) {
         webBookingService.createWebBooking(request);
-        return ResponseEntity.ok("Đặt bàn thành công! Hệ thống đang xử lý và chờ xác nhận.");
+        return ResponseEntity.ok(ApiResponse.success("Đặt bàn thành công! Hệ thống đang xử lý và chờ xác nhận.", null));
     }
 }
