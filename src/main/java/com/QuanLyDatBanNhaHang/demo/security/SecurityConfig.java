@@ -39,10 +39,17 @@ public class SecurityConfig {
             .csrf(AbstractHttpConfigurer::disable)
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/api/auth/**").permitAll()
-                .requestMatchers("/api/monan/**", "/api/banan/**", "/api/khuvuc/**").permitAll() // Public APIs
-                .requestMatchers("/api/hoadon/**", "/api/giaoca/**", "/api/phieudatban/**").hasAnyRole("ADMIN", "NHAN_VIEN") // Staff
+                // Public APIs
+                .requestMatchers("/api/auth/**", "/error").permitAll()
+                .requestMatchers("/api/monan/**", "/api/banan/**", "/api/khuvuc/**").permitAll()
+                
+                // Quyền hạn cho STAFF (và ADMIN)
+                .requestMatchers("/api/hoadon/**", "/api/giaoca/**", "/api/phieudatban/**").hasAnyRole("ADMIN", "NHAN_VIEN")
+                
+                // Quyền hạn chỉ dành cho ADMIN
                 .requestMatchers("/api/nhanvien/**", "/api/taikhoan/**").hasRole("ADMIN")
+                
+                // Tất cả request khác đều phải xác thực
                 .anyRequest().authenticated()
             )
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);

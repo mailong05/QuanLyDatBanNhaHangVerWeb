@@ -3,7 +3,6 @@ package com.QuanLyDatBanNhaHang.demo.security;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
@@ -13,9 +12,10 @@ import java.util.Date;
 @Component
 public class JwtTokenProvider {
 
-    // You can move this to application.properties
+    // Khóa bí mật JWT (Nên đặt trong application.properties ở thực tế)
     private final String jwtSecret = "DUMMY_SECRET_KEY_MUST_BE_LONG_ENOUGH_FOR_HMAC_SHA_256_AT_LEAST_32_BYTES_123456789";
-    private final int jwtExpirationMs = 86400000; // 1 day
+    // Thời gian sống của token: 1 ngày (86400000 ms)
+    private final int jwtExpirationMs = 86400000;
 
     private SecretKey key() {
         return Keys.hmacShaKeyFor(Decoders.BASE64.decode(
@@ -50,7 +50,7 @@ public class JwtTokenProvider {
             Jwts.parser().verifyWith(key()).build().parseSignedClaims(authToken);
             return true;
         } catch (JwtException | IllegalArgumentException ex) {
-            // log error
+            // Token không hợp lệ hoặc đã hết hạn
         }
         return false;
     }

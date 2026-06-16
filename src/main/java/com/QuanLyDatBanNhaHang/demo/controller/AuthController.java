@@ -22,24 +22,29 @@ public class AuthController {
     private final JwtTokenProvider tokenProvider;
 
     @PostMapping("/login")
-    public ResponseEntity<JwtAuthResponseDTO> authenticateUser(@Valid @RequestBody LoginRequestDTO loginRequest) {
+    public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequestDTO loginRequest) {
+        try {
+            Authentication authentication = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(
+                            loginRequest.getUsername(),
+                            loginRequest.getPassword()
+                    )
+            );
 
-        Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                        loginRequest.getUsername(),
-                        loginRequest.getPassword()
-                )
-        );
+            SecurityContextHolder.getContext().setAuthentication(authentication);
 
-        SecurityContextHolder.getContext().setAuthentication(authentication);
+            String jwt = tokenProvider.generateToken(authentication);
+            CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
 
-        String jwt = tokenProvider.generateToken(authentication);
-        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
-
-        return ResponseEntity.ok(JwtAuthResponseDTO.builder()
-                .accessToken(jwt)
-                .username(userDetails.getUsername())
-                .role(userDetails.getTaiKhoan().getQuyenHan().name())
-                .build());
+            return ResponseEntity.ok(JwtAuthResponseDTO.builder()
+                    .accessToken(jwt)
+                    .username(userDetails.getUsername())
+                    .role(userDetails.getTaiKhoan().getQuyenHan().name())
+                    .build());
+        } catch (org.springframework.security.core.AuthenticationException e) {
+            // Trả về 401 Unauthorized thay vì để lỗi văng ra ngoài gây 403 Forbidden
+            return ResponseEntity.status(org.springframework.http.HttpStatus.UNAUTHORIZED)
+                    .body("Sai tên đăng nhập hoặc mật khẩu!");
+        }
     }
 }
